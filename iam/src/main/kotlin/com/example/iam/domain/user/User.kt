@@ -2,6 +2,7 @@ package com.example.iam.domain.user
 
 import com.example.iam.domain.role.Permission
 import com.example.iam.domain.role.Role
+import com.example.iam.domain.user.exceptions.InvalidEmailException
 import com.example.iam.domain.user.exceptions.InvalidPasswordHashException
 import com.example.iam.domain.user.exceptions.InvalidUsernameException
 import java.util.UUID
@@ -9,6 +10,7 @@ import java.util.UUID
 internal class User(
     val id: UUID,
     username: String,
+    val email: String,
     val passwordHash: String,
     private var role: Role,
     private var status: UserStatus
@@ -18,6 +20,7 @@ internal class User(
 
     init {
         if (username.isBlank()) throw InvalidUsernameException(username)
+        if (email.isBlank()) throw InvalidEmailException(email)
         if (passwordHash.isBlank()) throw InvalidPasswordHashException()
     }
 
@@ -83,12 +86,14 @@ internal class User(
          * Factory method to create a NEW User.
          * Auto-generates a UUID, sets the status to ACTIVE by default, and performs validation.
          */
-        fun create(username: String, passwordHash: String, role: Role): User {
+        fun create(username: String, email: String, passwordHash: String, role: Role): User {
             if (username.isBlank()) throw InvalidUsernameException(username)
+            if (email.isBlank()) throw InvalidEmailException(email)
             if (passwordHash.isBlank()) throw InvalidPasswordHashException()
             return User(
                 id = UUID.randomUUID(),
                 username = username,
+                email = email,
                 passwordHash = passwordHash,
                 role = role,
                 status = UserStatus.ACTIVE

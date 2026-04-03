@@ -52,6 +52,17 @@ class UserTest {
     }
 
     @Test
+    fun `should allow changing username with validation`() {
+        val user = User.create(username = "jdoe", passwordHash = "hashed", role = testRole)
+        user.changeUsername("janedoe")
+        assertEquals("janedoe", user.username)
+
+        assertFailsWith<InvalidUsernameException> {
+            user.changeUsername(" ")
+        }
+    }
+
+    @Test
     fun `should allow action if user is active and role has permission`() {
         val user = User.create(username = "jdoe", passwordHash = "hashed", role = testRole)
         assertTrue(user.canPerform(Permission.RECORDS_VIEW))

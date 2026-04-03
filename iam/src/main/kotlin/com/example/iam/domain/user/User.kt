@@ -8,14 +8,25 @@ import java.util.UUID
 
 internal class User(
     val id: UUID,
-    val username: String,
+    username: String,
     val passwordHash: String,
     private var role: Role,
     private var status: UserStatus
 ) {
+    var username: String = username
+        private set
+
     init {
         if (username.isBlank()) throw InvalidUsernameException(username)
         if (passwordHash.isBlank()) throw InvalidPasswordHashException()
+    }
+
+    /**
+     * Changes the user's username after validation.
+     */
+    fun changeUsername(newUsername: String) {
+        if (newUsername.isBlank()) throw InvalidUsernameException(newUsername)
+        this.username = newUsername
     }
 
     /**

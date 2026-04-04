@@ -5,8 +5,8 @@ import com.example.iam.domain.user.UserRepository
 import com.example.iam.domain.user.exceptions.AuthenticationException
 import com.example.iam.domain.user.exceptions.UserInactiveException
 import com.example.iam.domain.role.Role
-import com.example.sharedkernel.security.JwtProvider
-import com.example.sharedkernel.security.PasswordHasher
+import com.example.iam.domain.auth.JwtProvider
+import com.example.iam.domain.auth.PasswordHasher
 import java.util.UUID
 import kotlin.test.*
 import kotlinx.coroutines.runBlocking

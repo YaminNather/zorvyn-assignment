@@ -3,8 +3,8 @@ package com.example.iam.application.commands
 import com.example.iam.domain.user.UserRepository
 import com.example.iam.domain.user.exceptions.AuthenticationException
 import com.example.iam.domain.user.exceptions.UserInactiveException
-import com.example.sharedkernel.security.JwtProvider
-import com.example.sharedkernel.security.PasswordHasher
+import com.example.iam.domain.auth.JwtProvider
+import com.example.iam.domain.auth.PasswordHasher
 
 /**
  * Command to orchestrate user authentication and stateless token issuance.

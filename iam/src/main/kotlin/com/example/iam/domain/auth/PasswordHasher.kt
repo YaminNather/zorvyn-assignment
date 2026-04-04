@@ -1,4 +1,4 @@
-package com.example.sharedkernel.security
+package com.example.iam.domain.auth
 
 /**
  * Interface for password hashing and verification services.

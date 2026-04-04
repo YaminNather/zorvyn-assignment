@@ -3,7 +3,7 @@ package com.example.iam.application.commands
 import com.example.iam.domain.role.Role
 import com.example.iam.domain.user.User
 import com.example.iam.domain.user.UserRepository
-import com.example.sharedkernel.security.PasswordHasher
+import com.example.iam.domain.auth.PasswordHasher
 import java.util.UUID
 import kotlin.test.*
 import kotlinx.coroutines.runBlocking

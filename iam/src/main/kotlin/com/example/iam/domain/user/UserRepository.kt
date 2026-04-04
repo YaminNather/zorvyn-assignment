@@ -26,4 +26,9 @@ internal interface UserRepository {
      * Removes a user by its unique identifier.
      */
     suspend fun delete(id: UUID)
+
+    /**
+     * Returns the total number of users.
+     */
+    suspend fun count(): Long
 }

@@ -43,7 +43,7 @@ class IamModule : AppModule() {
         single { LoginCommand(get(), get(), get()) }
 
         // Controllers
-        single { UserController(get()) }
+        single { UserController(get(), get()) }
         single { AuthController(get()) }
         Unit
     }

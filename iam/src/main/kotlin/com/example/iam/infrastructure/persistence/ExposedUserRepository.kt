@@ -52,6 +52,10 @@ internal class ExposedUserRepository : UserRepository {
         UsersTable.deleteWhere { UsersTable.id eq id }
     }
 
+    override suspend fun count(): Long = suspendTransaction {
+        UsersTable.selectAll().count()
+    }
+
     /**
      * Reconstructs a [User] domain entity from an Exposed [ResultRow].
      */

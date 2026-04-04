@@ -8,7 +8,7 @@ import com.example.iam.domain.user.exceptions.InvalidUsernameException
 import java.util.UUID
 import kotlin.test.*
 
-class UserTest {
+internal class UserTest {
 
     private val testRole = Role.Analyst
     private val testEmail = "jdoe@example.com"

@@ -4,7 +4,7 @@ import com.example.iam.domain.role.exceptions.InvalidRoleNameException
 import java.util.UUID
 import kotlin.test.*
 
-class RoleTest {
+internal class RoleTest {
 
     @Test
     fun `Admin should have all permissions`() {

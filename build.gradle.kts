@@ -24,7 +24,6 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.exposed.core)
     implementation(libs.exposed.r2dbc)
-    implementation(libs.r2dbc.h2)
     implementation(libs.r2dbc.postgresql)
     implementation(libs.ktor.server.request.validation)
     implementation(libs.ktor.server.auth)

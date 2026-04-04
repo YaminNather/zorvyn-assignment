@@ -12,23 +12,25 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.websocket.WebSocketDeflateExtension.Companion.install
+import kotlinx.coroutines.launch
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
-fun Application.module() {
-    val modules = listOf(FinanceModule(), IamModule())
-
-    configureDependencyInjection(modules)
-    configureProblemJsonGlobalErrorHandler(modules)
-    configureRoutes(modules)
-    configureSecurity()
+suspend fun Application.module() {
+    val modules = listOf(IamModule())
 
     install (ContentNegotiation) {
         json()
         json(contentType = ContentType("application", "problem+json"))
     }
+
+    configureDependencyInjection(modules)
+    configureDatabase()
+    configureProblemJsonGlobalErrorHandler(modules)
+    configureSecurity()
+    configureRoutes(modules)
 
     install(CORS) {
         allowMethod(HttpMethod.Options)

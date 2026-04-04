@@ -16,10 +16,10 @@ internal class TransactionController(
     private val createTransactionCommand: CreateTransactionCommand,
 ) {
     private suspend fun createTransaction(context: RoutingContext) = with(context) {
-        val request = call.receive<CreateTransactionRequestBody>()
-        val id = createTransactionCommand.execute(request.amount, request.recordType)
-
-        call.respond(HttpStatusCode.Created, CreateTransactionResponseBody(id))
+//        val request = call.receive<CreateTransactionRequestBody>()
+//        val id = createTransactionCommand.execute(request.amount, request.recordType)
+//
+//        call.respond(HttpStatusCode.Created, CreateTransactionResponseBody(id))
     }
 
     fun registerRoutes(route: Route) = with(route) {

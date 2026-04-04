@@ -9,3 +9,7 @@ jwt:
   audience: "jwt-audience"
   realm: "ktor sample app"
   secret: "secret"
+db:
+  url: "r2dbc:postgresql://localhost:5432/zorvyn_assignment"
+  user: "postgres"
+  password: ""

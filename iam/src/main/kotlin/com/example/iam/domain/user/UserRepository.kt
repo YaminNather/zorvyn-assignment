@@ -31,4 +31,9 @@ internal interface UserRepository {
      * Returns the total number of users.
      */
     suspend fun count(): Long
+
+    /**
+     * Returns the total number of users with a specific role name.
+     */
+    suspend fun countByRole(roleName: String): Long
 }

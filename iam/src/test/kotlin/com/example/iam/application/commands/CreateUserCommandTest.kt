@@ -15,13 +15,16 @@ internal class CreateUserCommandTest {
 
     private class FakeUserRepository : UserRepository {
         var savedUser: User? = null
-        override suspend fun findById(id: UUID): User? = null
-        override suspend fun findByEmail(email: String): User? = null
+        private val users = mutableMapOf<UUID, User>()
+        override suspend fun findById(id: UUID): User? = users[id]
+        override suspend fun findByEmail(email: String): User? = users.values.find { it.email == email }
         override suspend fun save(user: User) {
+            users[user.id] = user
             savedUser = user
         }
-        override suspend fun delete(id: UUID) {}
-        override suspend fun count(): Long = 0
+        override suspend fun delete(id: UUID) { users.remove(id) }
+        override suspend fun count(): Long = users.size.toLong()
+        override suspend fun countByRole(roleName: String): Long = users.values.count { it.getRole().name == roleName }.toLong()
     }
 
     private class FakePasswordHasher : PasswordHasher {

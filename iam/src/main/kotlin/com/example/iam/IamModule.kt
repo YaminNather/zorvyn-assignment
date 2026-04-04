@@ -2,6 +2,7 @@ package com.example.iam
 
 import com.example.iam.application.commands.CreateUserCommand
 import com.example.iam.application.commands.LoginCommand
+import com.example.iam.application.commands.ChangeUserRoleCommand
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
 import com.example.iam.domain.auth.JwtProvider
@@ -44,9 +45,10 @@ class IamModule : AppModule() {
         single { CreateUserCommand(get(), get()) }
         single { LoginCommand(get(), get(), get()) }
         single { SetupAdminCommand(get(), get()) }
+        single { ChangeUserRoleCommand(get()) }
 
         // Controllers
-        single { UserController(get(), get()) }
+        single { UserController(get(), get(), get()) }
         single { AuthController(get()) }
         Unit
     }
@@ -61,12 +63,36 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.Unauthorized.value
             )
         }
-        register<AdminAlreadyExistsException> { e ->
+        register<com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException> { e ->
             ProblemJsonException(
                 type = "admin-already-exists",
                 title = "Admin Already Exists",
                 detail = "Admin setup is not allowed when users already exist in the system.",
                 statusCode = HttpStatusCode.Conflict.value
+            )
+        }
+        register<com.example.iam.application.exceptions.UserNotFoundException> { e ->
+            ProblemJsonException(
+                type = "user-not-found",
+                title = "User Not Found",
+                detail = e.message ?: "The requested user was not found.",
+                statusCode = HttpStatusCode.NotFound.value
+            )
+        }
+        register<com.example.iam.application.exceptions.LastAdminCannotChangeRoleException> { e ->
+            ProblemJsonException(
+                type = "last-admin-role-change",
+                title = "Operation Not Permitted",
+                detail = e.message ?: "Cannot change the role of the last admin.",
+                statusCode = HttpStatusCode.Forbidden.value
+            )
+        }
+        register<com.example.iam.application.exceptions.InvalidRoleException> { e ->
+            ProblemJsonException(
+                type = "invalid-role",
+                title = "Invalid Role",
+                detail = e.message ?: "The specified role does not exist.",
+                statusCode = HttpStatusCode.BadRequest.value
             )
         }
         Unit

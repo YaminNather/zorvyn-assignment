@@ -50,6 +50,10 @@ internal class ExposedUserRepository : UserRepository {
         UsersTable.selectAll().count()
     }
 
+    override suspend fun countByRole(roleName: String): Long = suspendTransaction {
+        UsersTable.selectAll().where { UsersTable.role eq roleName }.count()
+    }
+
     /**
      * Reconstructs a [User] domain entity from an Exposed [ResultRow].
      */

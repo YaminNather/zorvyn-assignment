@@ -17,11 +17,13 @@ import kotlinx.coroutines.runBlocking
 internal class LoginCommandTest {
 
     private class FakeUserRepository(private val user: User? = null) : UserRepository {
+        private val users = if (user != null) mutableMapOf(user.id to user) else mutableMapOf()
         override suspend fun findById(id: UUID): User? = null
         override suspend fun findByEmail(email: String): User? = user
         override suspend fun save(user: User) {}
         override suspend fun delete(id: UUID) {}
-        override suspend fun count(): Long = 0
+        override suspend fun count(): Long = users.size.toLong()
+        override suspend fun countByRole(roleName: String): Long = users.values.count { it.getRole().name == roleName }.toLong()
     }
 
     private class FakePasswordHasher(private val match: Boolean = true) : PasswordHasher {

@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.core.java.*
  */
 object UsersTable : Table("iam_users") {
     val id = javaUUID("id")
-    val username = varchar("username", 255).uniqueIndex()
+    val name = varchar("name", 255)
     val email = varchar("email", 255).uniqueIndex()
     val passwordHash = varchar("password_hash", 255)
     val role = varchar("role", 50)

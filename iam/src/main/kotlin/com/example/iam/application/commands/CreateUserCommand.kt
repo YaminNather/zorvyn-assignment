@@ -20,7 +20,7 @@ internal class CreateUserCommand(
      * @return The unique identifier of the newly created user.
      */
     suspend fun execute(
-        username: String,
+        name: String,
         email: String,
         password: String,
         roleName: String
@@ -33,7 +33,7 @@ internal class CreateUserCommand(
         
         // Create the domain entity
         val user = User.create(
-            username = username,
+            name = name,
             email = email,
             passwordHash = passwordHash,
             role = role

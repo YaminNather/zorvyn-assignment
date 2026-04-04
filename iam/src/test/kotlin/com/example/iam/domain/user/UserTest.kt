@@ -4,7 +4,7 @@ import com.example.sharedkernel.authorization.Permission
 import com.example.iam.domain.role.Role
 import com.example.iam.domain.user.exceptions.InvalidEmailException
 import com.example.iam.domain.user.exceptions.InvalidPasswordHashException
-import com.example.iam.domain.user.exceptions.InvalidUsernameException
+import com.example.iam.domain.user.exceptions.InvalidNameException
 import java.util.UUID
 import kotlin.test.*
 
@@ -15,28 +15,28 @@ internal class UserTest {
 
     @Test
     fun `should create user with backend generated id and default active status`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
         assertNotNull(user.id)
         assertEquals(testEmail, user.email)
         assertTrue(user.isActive())
     }
 
     @Test
-    fun `should fail to create user with blank username, email or password hash`() {
-        assertFailsWith<InvalidUsernameException> {
-            User.create(username = "", email = testEmail, passwordHash = "hashed", role = testRole)
+    fun `should fail to create user with blank name, email or password hash`() {
+        assertFailsWith<InvalidNameException> {
+            User.create(name = "", email = testEmail, passwordHash = "hashed", role = testRole)
         }
         assertFailsWith<InvalidEmailException> {
-            User.create(username = "jdoe", email = " ", passwordHash = "hashed", role = testRole)
+            User.create(name = "jdoe", email = " ", passwordHash = "hashed", role = testRole)
         }
         assertFailsWith<InvalidPasswordHashException> {
-            User.create(username = "jdoe", email = testEmail, passwordHash = " ", role = testRole)
+            User.create(name = "jdoe", email = testEmail, passwordHash = " ", role = testRole)
         }
     }
 
     @Test
     fun `should toggle between active and inactive status`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
         
         user.deactivate()
         assertFalse(user.isActive())
@@ -50,7 +50,7 @@ internal class UserTest {
     @Test
     fun `should update user's role`() {
         val newRole = Role.Admin
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
 
         user.changeRole(newRole)
         assertEquals(newRole, user.getRole())
@@ -58,38 +58,38 @@ internal class UserTest {
     }
 
     @Test
-    fun `should allow changing username with validation`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
-        user.changeUsername("janedoe")
-        assertEquals("janedoe", user.username)
+    fun `should allow changing name with validation`() {
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        user.changeName("janedoe")
+        assertEquals("janedoe", user.name)
 
-        assertFailsWith<InvalidUsernameException> {
-            user.changeUsername(" ")
+        assertFailsWith<InvalidNameException> {
+            user.changeName(" ")
         }
     }
 
     @Test
     fun `should allow action if user is active and role has permission`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
         assertTrue(user.canPerform(Permission.RECORDS_VIEW))
     }
 
     @Test
     fun `should deny action if user is inactive even if role has permission`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
         user.deactivate()
         assertFalse(user.canPerform(Permission.RECORDS_VIEW))
     }
 
     @Test
     fun `should deny action if role does not have permission`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
         assertFalse(user.canPerform(Permission.USERS_MANAGE))
     }
 
     @Test
     fun `should get all allowed permissions for user's role`() {
-        val user = User.create(username = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
+        val user = User.create(name = "jdoe", email = testEmail, passwordHash = "hashed", role = testRole)
         assertEquals(testRole.permissions, user.getAllowedPermissions())
     }
 
@@ -98,7 +98,7 @@ internal class UserTest {
         val id = UUID.randomUUID()
         val user = User(
             id = id,
-            username = "ext-user",
+            name = "ext-user",
             email = "ext@example.com",
             passwordHash = "hash",
             role = testRole,

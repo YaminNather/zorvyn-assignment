@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 internal data class CreateUserRequestBody(
-    val username: String,
+    val name: String,
     val email: String,
     val password: String, // Plain-text password to be processed/hashed
     val roleName: String

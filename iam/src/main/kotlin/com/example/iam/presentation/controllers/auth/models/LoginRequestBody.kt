@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 internal data class LoginRequestBody(
-    val username: String,
+    val email: String,
     val password: String
 )
 

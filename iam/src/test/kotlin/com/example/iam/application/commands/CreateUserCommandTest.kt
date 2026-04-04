@@ -16,11 +16,12 @@ internal class CreateUserCommandTest {
     private class FakeUserRepository : UserRepository {
         var savedUser: User? = null
         override suspend fun findById(id: UUID): User? = null
-        override suspend fun findByUsername(username: String): User? = null
+        override suspend fun findByEmail(email: String): User? = null
         override suspend fun save(user: User) {
             savedUser = user
         }
         override suspend fun delete(id: UUID) {}
+        override suspend fun count(): Long = 0
     }
 
     private class FakePasswordHasher : PasswordHasher {
@@ -35,7 +36,7 @@ internal class CreateUserCommandTest {
         val command = CreateUserCommand(repo, hasher)
 
         val id = command.execute(
-            username = "admin_user",
+            name = "admin_user",
             email = "admin@example.com",
             password = "raw_password",
             roleName = "ADMIN"
@@ -47,7 +48,7 @@ internal class CreateUserCommandTest {
         // Confirm the user was correctly constructed and sent to the repository
         val saved = repo.savedUser
         assertNotNull(saved)
-        assertEquals("admin_user", saved.username)
+        assertEquals("admin_user", saved.name)
         assertEquals("admin@example.com", saved.email)
         assertEquals("hashed_pw", saved.passwordHash) // Verifies hashing step
         assertEquals(Role.Admin, saved.getRole())
@@ -61,7 +62,7 @@ internal class CreateUserCommandTest {
 
         assertFails {
             command.execute(
-                username = "jdoe",
+                name = "jdoe",
                 email = "jdoe@example.com",
                 password = "raw",
                 roleName = "SUPER_USER" // This role doesn't exist

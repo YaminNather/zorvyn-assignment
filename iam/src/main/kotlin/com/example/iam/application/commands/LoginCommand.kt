@@ -16,17 +16,19 @@ internal class LoginCommand(
     private val jwtProvider: JwtProvider
 ) {
     /**
-     * Authenticates a user and generates an access token.
-     * @param username The provided username for authentication.
-     * @param password The provided password for verification.
-     * @return An encoded access token (JWT).
+     * Executes the login process.
+     * @param email The user's email.
+     * @param password The user's plain-text password.
+     * @return A valid JWT string.
+     * @throws AuthenticationException if credentials are invalid or the account is inactive.
      */
-    suspend fun execute(username: String, password: String): String {
-        // Find user by username
-        val user = userRepository.findByUsername(username) ?: throw AuthenticationException()
+    suspend fun execute(email: String, password: String): String {
+        // 1. Find user by email
+        val user = userRepository.findByEmail(email)
+            ?: throw AuthenticationException()
 
         // Validate user's current status before allowing login
-        if (!user.isActive()) throw UserInactiveException(username)
+        if (!user.isActive()) throw UserInactiveException(email)
 
         // Verify provided password against stored hash
         if (!passwordHasher.verify(password, user.passwordHash)) throw AuthenticationException()

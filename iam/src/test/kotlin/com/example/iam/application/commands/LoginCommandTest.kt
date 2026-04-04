@@ -18,9 +18,10 @@ internal class LoginCommandTest {
 
     private class FakeUserRepository(private val user: User? = null) : UserRepository {
         override suspend fun findById(id: UUID): User? = null
-        override suspend fun findByUsername(username: String): User? = user
+        override suspend fun findByEmail(email: String): User? = user
         override suspend fun save(user: User) {}
         override suspend fun delete(id: UUID) {}
+        override suspend fun count(): Long = 0
     }
 
     private class FakePasswordHasher(private val match: Boolean = true) : PasswordHasher {
@@ -42,7 +43,7 @@ internal class LoginCommandTest {
             jwtProvider = FakeJwtProvider(token = "expected_token")
         )
 
-        val result = command.execute("jdoe", "correct_password")
+        val result = command.execute("jdoe@example.com", "correct_password")
         assertEquals("expected_token", result)
     }
 
@@ -55,7 +56,7 @@ internal class LoginCommandTest {
         )
 
         assertFailsWith<AuthenticationException> {
-            command.execute("unknown", "any")
+            command.execute("jdoe@example.com", "any")
         }
     }
 
@@ -68,7 +69,7 @@ internal class LoginCommandTest {
         )
 
         assertFailsWith<AuthenticationException> {
-            command.execute("jdoe", "wrong_password")
+            command.execute("jdoe@example.com", "wrong_password")
         }
     }
 
@@ -82,7 +83,7 @@ internal class LoginCommandTest {
         )
 
         assertFailsWith<UserInactiveException> {
-            command.execute("jdoe", "any_password")
+            command.execute("jdoe@example.com", "any_password")
         }
     }
 }

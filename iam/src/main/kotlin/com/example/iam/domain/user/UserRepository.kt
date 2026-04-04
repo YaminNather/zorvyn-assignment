@@ -13,9 +13,9 @@ internal interface UserRepository {
     suspend fun findById(id: UUID): User?
 
     /**
-     * Resolves a user by its username.
+     * Resolves a user by its email.
      */
-    suspend fun findByUsername(username: String): User?
+    suspend fun findByEmail(email: String): User?
 
     /**
      * Persists or updates a user entity.

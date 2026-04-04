@@ -7,6 +7,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
+import io.ktor.server.application.install
+import io.ktor.server.plugins.requestvalidation.RequestValidation
+import io.ktor.server.plugins.requestvalidation.ValidationResult
 
 /**
  * Controller to handle authentication-related endpoints.
@@ -22,7 +25,7 @@ internal class AuthController(
         val request = call.receive<LoginRequestBody>()
         
         // Execute the login logic and obtain the generated JWT
-        val token = loginCommand.execute(request.username, request.password)
+        val token = loginCommand.execute(request.email, request.password)
         
         call.respond(HttpStatusCode.OK, LoginResponseBody(token))
     }
@@ -32,6 +35,13 @@ internal class AuthController(
      */
     fun registerRoutes(route: Route) = with(route) {
         route("/auth") {
+            install(RequestValidation) {
+                validate<LoginRequestBody> { body ->
+                    if (body.email.isBlank()) ValidationResult.Invalid("Email cannot be blank")
+                    else if (body.password.isBlank()) ValidationResult.Invalid("Password cannot be blank")
+                    else ValidationResult.Valid
+                }
+            }
             post("/login") { login(this) }
         }
     }

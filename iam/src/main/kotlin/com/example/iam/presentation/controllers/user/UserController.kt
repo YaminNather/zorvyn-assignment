@@ -10,6 +10,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
 import io.ktor.server.auth.authenticate
+import io.ktor.server.application.install
+import io.ktor.server.plugins.requestvalidation.RequestValidation
+import io.ktor.server.plugins.requestvalidation.ValidationResult
 
 import com.example.iam.domain.user.UserRepository
 
@@ -31,7 +34,7 @@ internal class UserController(
         // Execute the command and return the generated ID.
         // Hashing now happens at the application layer inside CreateUserCommand.
         val id = createUserCommand.execute(
-            username = request.username,
+            name = request.name,
             email = request.email,
             password = request.password, 
             roleName = request.roleName
@@ -46,7 +49,7 @@ internal class UserController(
     private suspend fun createAdminIfNone(context: RoutingContext) = with(context) {
         if (userRepository.count() == 0L) {
             val id = createUserCommand.execute(
-                username = "admin",
+                name = "admin",
                 email = "admin@example.com",
                 password = "admin",
                 roleName = "Admin" // Make sure "Admin" matches Role.ADMIN.name logic
@@ -67,6 +70,15 @@ internal class UserController(
         authenticate {
             withPermission(Permission.USERS_MANAGE) {
                 route("/user") {
+                    install(RequestValidation) {
+                        validate<CreateUserRequestBody> { body ->
+                            if (body.name.isBlank()) ValidationResult.Invalid("Name cannot be blank")
+                            else if (body.email.isBlank() || !body.email.contains("@")) ValidationResult.Invalid("Valid email is required")
+                            else if (body.password.length < 6) ValidationResult.Invalid("Password must be at least 6 characters long")
+                            else if (body.roleName.isBlank()) ValidationResult.Invalid("Role name cannot be blank")
+                            else ValidationResult.Valid
+                        }
+                    }
                     post { createUser(this) }
                 }
             }

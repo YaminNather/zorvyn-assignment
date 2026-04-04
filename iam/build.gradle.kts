@@ -31,6 +31,9 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.exposed.r2dbc)
 
+    // Request Validation
+    implementation(libs.ktor.server.request.validation)
+
     // Tests
     testImplementation(kotlin("test"))
     testImplementation(libs.ktor.server.test.host)

@@ -24,31 +24,25 @@ internal class ExposedUserRepository : UserRepository {
             ?.toDomain()
     }
 
-    override suspend fun findByUsername(username: String): User? = suspendTransaction {
+    override suspend fun findByEmail(email: String): User? = suspendTransaction {
         UsersTable.selectAll()
-            .where { UsersTable.username eq username }
+            .where { UsersTable.email eq email }
             .singleOrNull()
             ?.toDomain()
     }
 
     override suspend fun save(user: User): Unit = suspendTransaction {
-        val exists = UsersTable.selectAll()
-            .where { UsersTable.id eq user.id }
-            .count() > 0
-
-        if (exists) {
-            UsersTable.upsert {
-                it[UsersTable.username] = user.username
-                it[UsersTable.email] = user.email
-                it[UsersTable.passwordHash] = user.passwordHash
-                it[UsersTable.role] = user.getRole().name
-                it[UsersTable.status] = user.getStatus().name
-            }
+        UsersTable.upsert {
+            it[UsersTable.id] = user.id
+            it[UsersTable.name] = user.name
+            it[UsersTable.email] = user.email
+            it[UsersTable.passwordHash] = user.passwordHash
+            it[UsersTable.role] = user.getRole().name
+            it[UsersTable.status] = user.getStatus().name
         }
     }
 
     override suspend fun delete(id: UUID): Unit = suspendTransaction {
-        // Fallback to manual DeleteStatement if deleteWhere is not found in classpath
         UsersTable.deleteWhere { UsersTable.id eq id }
     }
 
@@ -62,7 +56,7 @@ internal class ExposedUserRepository : UserRepository {
     private fun ResultRow.toDomain(): User {
         return User(
             id = this[UsersTable.id],
-            username = this[UsersTable.username],
+            name = this[UsersTable.name],
             email = this[UsersTable.email],
             passwordHash = this[UsersTable.passwordHash],
             role = Role.fromName(this[UsersTable.role]),

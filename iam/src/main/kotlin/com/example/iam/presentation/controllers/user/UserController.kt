@@ -1,6 +1,7 @@
 package com.example.iam.presentation.controllers.user
 
 import com.example.iam.application.commands.CreateUserCommand
+import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.presentation.controllers.user.models.CreateUserRequestBody
 import com.example.iam.presentation.controllers.user.models.CreateUserResponseBody
 import com.example.sharedkernel.authorization.Permission
@@ -10,19 +11,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
 import io.ktor.server.auth.authenticate
-import io.ktor.server.application.install
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
 
-import com.example.iam.domain.user.UserRepository
-
-/**
- * Controller to handle API requests related to user management.
- * Encapsulates routing and mapping for User creation.
- */
 internal class UserController(
     private val createUserCommand: CreateUserCommand,
-    private val userRepository: UserRepository
+    private val setupAdminCommand: SetupAdminCommand
 ) {
     /**
      * Handles the user creation post request.
@@ -47,17 +41,8 @@ internal class UserController(
      * Unprotected endpoint to initialize the admin user if the database is empty.
      */
     private suspend fun createAdminIfNone(context: RoutingContext) = with(context) {
-        if (userRepository.count() == 0L) {
-            val id = createUserCommand.execute(
-                name = "admin",
-                email = "admin@example.com",
-                password = "admin",
-                roleName = "Admin" // Make sure "Admin" matches Role.ADMIN.name logic
-            )
-            call.respond(HttpStatusCode.Created, mapOf("message" to "Admin created", "id" to id.toString()))
-        } else {
-            call.respond(HttpStatusCode.Conflict, mapOf("message" to "Users already exist"))
-        }
+        val id = setupAdminCommand.execute()
+        call.respond(HttpStatusCode.Created, mapOf("message" to "Admin created", "id" to id.toString()))
     }
 
     /**

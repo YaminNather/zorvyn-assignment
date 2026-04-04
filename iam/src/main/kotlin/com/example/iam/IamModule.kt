@@ -2,6 +2,8 @@ package com.example.iam
 
 import com.example.iam.application.commands.CreateUserCommand
 import com.example.iam.application.commands.LoginCommand
+import com.example.iam.application.commands.setupadmin.SetupAdminCommand
+import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
 import com.example.iam.domain.auth.JwtProvider
 import com.example.iam.domain.auth.PasswordHasher
 import com.example.iam.domain.user.UserRepository
@@ -41,6 +43,7 @@ class IamModule : AppModule() {
         // Application Commands
         single { CreateUserCommand(get(), get()) }
         single { LoginCommand(get(), get(), get()) }
+        single { SetupAdminCommand(get(), get()) }
 
         // Controllers
         single { UserController(get(), get()) }
@@ -56,6 +59,14 @@ class IamModule : AppModule() {
                 title = "Authentication Failed",
                 detail = e.message ?: "Invalid credentials",
                 statusCode = HttpStatusCode.Unauthorized.value
+            )
+        }
+        register<AdminAlreadyExistsException> { e ->
+            ProblemJsonException(
+                type = "admin-already-exists",
+                title = "Admin Already Exists",
+                detail = "Admin setup is not allowed when users already exist in the system.",
+                statusCode = HttpStatusCode.Conflict.value
             )
         }
         Unit

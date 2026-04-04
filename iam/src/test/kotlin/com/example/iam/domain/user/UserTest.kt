@@ -1,6 +1,6 @@
 package com.example.iam.domain.user
 
-import com.example.iam.domain.role.Permission
+import com.example.sharedkernel.authorization.Permission
 import com.example.iam.domain.role.Role
 import com.example.iam.domain.user.exceptions.InvalidEmailException
 import com.example.iam.domain.user.exceptions.InvalidPasswordHashException

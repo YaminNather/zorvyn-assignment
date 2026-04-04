@@ -1,4 +1,5 @@
 package com.example.iam.domain.role
+nimport com.example.sharedkernel.authorization.Permission
 
 import com.example.iam.domain.role.exceptions.InvalidRoleNameException
 import java.util.UUID

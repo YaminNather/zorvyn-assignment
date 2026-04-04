@@ -35,7 +35,7 @@ internal class LoginCommand(
         return jwtProvider.createToken(
             subject = user.id.toString(),
             roles = listOf(user.getRole().name),
-            permissions = user.getAllowedPermissions().map { it.value }
+            permissions = user.getAllowedPermissions().map { it.name }
         )
     }
 }

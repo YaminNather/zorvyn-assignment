@@ -3,6 +3,7 @@ package com.example
 import com.example.dependencyinjection.configureDependencyInjection
 import com.example.errorhandling.configureProblemJsonGlobalErrorHandler
 import com.example.finance.FinanceModule
+import com.example.iam.IamModule
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -17,7 +18,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    val modules = listOf(FinanceModule())
+    val modules = listOf(FinanceModule(), IamModule())
 
     configureDependencyInjection(modules)
     configureProblemJsonGlobalErrorHandler(modules)

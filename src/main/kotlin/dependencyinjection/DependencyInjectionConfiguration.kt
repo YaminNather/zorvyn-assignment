@@ -12,6 +12,7 @@ fun Application.configureDependencyInjection(appModules: List<AppModule>) {
 
         modules(
             module {
+                single { environment.config }
                 appModules.forEach { e -> e.dependencies(this@module) }
             }
         )

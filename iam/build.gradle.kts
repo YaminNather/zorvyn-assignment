@@ -23,6 +23,10 @@ dependencies {
     // Koin
     implementation(libs.koin.core)
 
+    // Exposed
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.r2dbc)
+
     // Tests
     testImplementation(kotlin("test"))
     testImplementation(libs.ktor.server.test.host)

@@ -1,5 +1,5 @@
 [versions]
-exposed = "0.61.0"
+exposed = "1.0.0"
 h2 = "2.3.232"
 koin = "4.1.2-Beta1"
 kotlin = "2.3.0"
@@ -13,8 +13,9 @@ ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
-exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
-h2 = { module = "com.h2database:h2", version.ref = "h2" }
+exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
+r2dbc-h2 = { module = "io.r2dbc:r2dbc-h2", version = "1.0.0.RELEASE" }
+r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version = "1.0.5.RELEASE" }
 ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation", version.ref = "ktor" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }

@@ -3,6 +3,7 @@ package com.example.iam
 import com.example.iam.application.commands.CreateUserCommand
 import com.example.iam.application.commands.LoginCommand
 import com.example.iam.application.commands.ChangeUserRoleCommand
+import com.example.iam.application.commands.ChangeUserNameCommand
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
 import com.example.iam.domain.auth.JwtProvider
@@ -46,9 +47,10 @@ class IamModule : AppModule() {
         single { LoginCommand(get(), get(), get()) }
         single { SetupAdminCommand(get(), get()) }
         single { ChangeUserRoleCommand(get()) }
+        single { ChangeUserNameCommand(get()) }
 
         // Controllers
-        single { UserController(get(), get(), get()) }
+        single { UserController(get(), get(), get(), get()) }
         single { AuthController(get()) }
         Unit
     }
@@ -92,6 +94,14 @@ class IamModule : AppModule() {
                 type = "invalid-role",
                 title = "Invalid Role",
                 detail = e.message ?: "The specified role does not exist.",
+                statusCode = HttpStatusCode.BadRequest.value
+            )
+        }
+        register<com.example.iam.domain.user.exceptions.InvalidNameException> { e ->
+            ProblemJsonException(
+                type = "invalid-name",
+                title = "Invalid Name",
+                detail = e.message ?: "The provided name is invalid.",
                 statusCode = HttpStatusCode.BadRequest.value
             )
         }

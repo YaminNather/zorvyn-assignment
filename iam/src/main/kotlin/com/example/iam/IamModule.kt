@@ -5,7 +5,9 @@ import com.example.iam.application.commands.LoginCommand
 import com.example.iam.application.commands.ChangeUserRoleCommand
 import com.example.iam.application.commands.ChangeUserNameCommand
 import com.example.iam.application.queries.user.GetCurrentUserQuery
+import com.example.iam.application.queries.user.ListUsersQuery
 import com.example.iam.infrastructure.queries.user.ExposedGetCurrentUserQuery
+import com.example.iam.infrastructure.queries.user.ExposedListUsersQuery
 import com.example.iam.application.exceptions.UserAlreadyExistsException
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
@@ -58,9 +60,11 @@ class IamModule : AppModule() {
         single { ChangeUserRoleCommand(get()) }
         single { ChangeUserNameCommand(get()) }
         single<GetCurrentUserQuery> { ExposedGetCurrentUserQuery() }
+        single<ListUsersQuery> { ExposedListUsersQuery() }
 
         // Controllers
-        single { UserController(get(), get(), get(), get(), get()) }
+        single { UserController(get(), get(), get(), get(), get(), get()) }
+
 
         single { AuthController(get()) }
         Unit

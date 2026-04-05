@@ -5,6 +5,7 @@ import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.ChangeUserRoleCommand
 import com.example.iam.application.commands.ChangeUserNameCommand
 import com.example.iam.application.queries.user.GetCurrentUserQuery
+import com.example.iam.application.queries.user.ListUsersQuery
 import com.example.iam.presentation.controllers.user.models.CreateUserRequestBody
 import com.example.iam.presentation.controllers.user.models.ChangeUserRoleRequestBody
 import com.example.iam.presentation.controllers.user.models.ChangeUserNameRequestBody
@@ -27,7 +28,8 @@ internal class UserController(
     private val setupAdminCommand: SetupAdminCommand,
     private val changeUserRoleCommand: ChangeUserRoleCommand,
     private val changeUserNameCommand: ChangeUserNameCommand,
-    private val getCurrentUserQuery: GetCurrentUserQuery
+    private val getCurrentUserQuery: GetCurrentUserQuery,
+    private val listUsersQuery: ListUsersQuery
 ) {
     /**
      * Handles the user creation post request.
@@ -57,7 +59,16 @@ internal class UserController(
     }
 
     /**
+     * Lists all registered users. Requires USERS_MANAGE permission.
+     */
+    private suspend fun listUsers(context: RoutingContext) = with(context) {
+        val users = listUsersQuery.execute()
+        call.respond(HttpStatusCode.OK, users)
+    }
+
+    /**
      * Retrieves the details of the currently authenticated user based on their JWT.
+
      */
     private suspend fun me(context: RoutingContext) = with(context) {
         val principal = call.principal<JWTPrincipal>() ?: return@me call.respond(HttpStatusCode.Unauthorized)
@@ -100,6 +111,7 @@ internal class UserController(
                         }
                     }
                     post { createUser(this) }
+                    get { listUsers(this) }
 
                     patch("/{id}/name") {
                         val idParam = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))

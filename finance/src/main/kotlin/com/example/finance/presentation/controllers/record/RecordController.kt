@@ -229,7 +229,6 @@ internal class RecordController(
             withPermission(Permission.RECORDS_VIEW) {
                 route("/finance/records") {
                     get { listRecords(this) }
-                    get("/summary") { getSummary(this) }
                     get("/{id}") { getRecord(this) }
                 }
             }

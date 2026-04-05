@@ -4,7 +4,9 @@ import com.example.finance.application.commands.CreateRecordCommand
 import com.example.finance.application.commands.UpdateRecordCommand
 import com.example.finance.application.commands.DeleteRecordCommand
 import com.example.finance.application.queries.record.GetRecordQuery
+import com.example.finance.application.queries.record.ListRecordsQuery
 import com.example.finance.presentation.controllers.record.models.CreateRecordRequestBody
+
 
 import com.example.finance.presentation.controllers.record.models.CreateRecordResponseBody
 import com.example.finance.presentation.controllers.record.models.UpdateRecordRequestBody
@@ -29,7 +31,8 @@ internal class RecordController(
     private val createRecordCommand: CreateRecordCommand,
     private val updateRecordCommand: UpdateRecordCommand,
     private val deleteRecordCommand: DeleteRecordCommand,
-    private val getRecordQuery: GetRecordQuery
+    private val getRecordQuery: GetRecordQuery,
+    private val listRecordsQuery: ListRecordsQuery
 ) {
     /**
      * Handles the creation of a financial record for the authenticated user.
@@ -111,6 +114,34 @@ internal class RecordController(
     }
 
     /**
+     * Handles listing of records with filtering and pagination.
+     */
+    private suspend fun listRecords(context: RoutingContext) = with(context) {
+        val queryParams = call.request.queryParameters
+        
+        val minAmount = queryParams["minAmount"]?.toLongOrNull()
+        val maxAmount = queryParams["maxAmount"]?.toLongOrNull()
+        val categories = queryParams.getAll("category") // Get multiple if provided
+        val startDate = queryParams["startDate"]?.let { try { Instant.parse(it) } catch (e: Exception) { null } }
+        val endDate = queryParams["endDate"]?.let { try { Instant.parse(it) } catch (e: Exception) { null } }
+        val page = queryParams["page"]?.toIntOrNull() ?: 1
+        val pageSize = queryParams["pageSize"]?.toIntOrNull() ?: 20
+        
+        val response = listRecordsQuery.execute(
+            minAmount = minAmount,
+            maxAmount = maxAmount,
+            categories = categories,
+            startDate = startDate,
+            endDate = endDate,
+            page = page,
+            pageSize = pageSize
+        )
+        
+        call.respond(HttpStatusCode.OK, response)
+    }
+
+
+    /**
      * Registers financial record related routes under /finance/records.
      * Implements request validation for robust API interactions.
      */
@@ -141,6 +172,7 @@ internal class RecordController(
             
             withPermission(Permission.RECORDS_VIEW) {
                 route("/finance/records") {
+                    get { listRecords(this) }
                     get("/{id}") { getRecord(this) }
                 }
             }

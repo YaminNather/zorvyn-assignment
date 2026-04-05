@@ -18,6 +18,8 @@ dependencies {
     implementation(libs.ktor.status.pages)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.r2dbc)
 
     implementation(project(":sharedkernel"))
 }

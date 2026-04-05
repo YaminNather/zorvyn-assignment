@@ -1,5 +1,7 @@
 package com.example.finance
 
+import com.example.finance.domain.record.RecordRepository
+import com.example.finance.infrastructure.persistence.ExposedRecordRepository
 import com.example.sharedkernel.errorhandling.ExceptionMapperRegistry
 import com.example.sharedkernel.errorhandling.ProblemJsonException
 import com.example.sharedkernel.module.AppModule
@@ -10,7 +12,8 @@ import org.koin.core.module.Module
 
 class FinanceModule : AppModule() {
     override fun dependencies(module: Module) = with(module) {
-        // Dependencies will be added here
+        single<RecordRepository> { ExposedRecordRepository() }
+        Unit
     }
 
     override fun errorMappers(registry: ExceptionMapperRegistry) = with (registry) {

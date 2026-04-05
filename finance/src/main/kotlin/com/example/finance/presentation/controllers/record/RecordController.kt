@@ -128,8 +128,16 @@ internal class RecordController(
 
 
 
-        val page = queryParams["page"]?.toIntOrNull() ?: 1
-        val pageSize = queryParams["pageSize"]?.toIntOrNull() ?: 20
+        if (minAmount != null && maxAmount != null && minAmount > maxAmount) {
+            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "minAmount cannot be greater than maxAmount"))
+        }
+        if (startDate != null && endDate != null && startDate > endDate) {
+            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "startDate cannot be after endDate"))
+        }
+
+
+        val page = (queryParams["page"]?.toIntOrNull() ?: 1).coerceAtLeast(1)
+        val pageSize = (queryParams["pageSize"]?.toIntOrNull() ?: 20).coerceIn(1, 100)
         
         val response = listRecordsQuery.execute(
             minAmount = minAmount,
@@ -140,6 +148,7 @@ internal class RecordController(
             page = page,
             pageSize = pageSize
         )
+
         
         call.respond(HttpStatusCode.OK, response)
     }
@@ -156,13 +165,23 @@ internal class RecordController(
         val startDate = queryParams["startDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
         val endDate = queryParams["endDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
 
+        if (minAmount != null && maxAmount != null && minAmount > maxAmount) {
+            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "minAmount cannot be greater than maxAmount"))
+        }
+
+        if (startDate != null && endDate != null && startDate > endDate) {
+            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "startDate cannot be after endDate"))
+        }
+
         val summary = getSummaryQuery.execute(
+
             minAmount = minAmount,
             maxAmount = maxAmount,
             categories = categories,
             startDate = startDate,
             endDate = endDate
         )
+
         
         call.respond(HttpStatusCode.OK, summary)
     }
@@ -183,6 +202,12 @@ internal class RecordController(
                             else if (body.amount == 0L) ValidationResult.Invalid("Amount cannot be zero")
                             else ValidationResult.Valid
                         }
+                        validate<UpdateRecordRequestBody> { body ->
+                            if (body.category?.isBlank() == true) ValidationResult.Invalid("Category cannot be blank")
+                            else if (body.amount == 0L) ValidationResult.Invalid("Amount cannot be zero")
+                            else ValidationResult.Valid
+                        }
+
 
                     }
 

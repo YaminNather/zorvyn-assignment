@@ -4,7 +4,9 @@ import com.example.finance.application.commands.CreateRecordCommand
 import com.example.finance.application.commands.UpdateRecordCommand
 import com.example.finance.application.commands.DeleteRecordCommand
 import com.example.finance.application.queries.record.GetRecordQuery
+import com.example.finance.application.queries.record.GetSummaryQuery
 import com.example.finance.application.queries.record.ListRecordsQuery
+
 import com.example.finance.presentation.controllers.record.models.CreateRecordRequestBody
 
 
@@ -32,8 +34,10 @@ internal class RecordController(
     private val updateRecordCommand: UpdateRecordCommand,
     private val deleteRecordCommand: DeleteRecordCommand,
     private val getRecordQuery: GetRecordQuery,
-    private val listRecordsQuery: ListRecordsQuery
+    private val listRecordsQuery: ListRecordsQuery,
+    private val getSummaryQuery: GetSummaryQuery
 ) {
+
     /**
      * Handles the creation of a financial record for the authenticated user.
      * Parses the request body and delegates to CreateRecordCommand.
@@ -140,6 +144,30 @@ internal class RecordController(
         call.respond(HttpStatusCode.OK, response)
     }
 
+    /**
+     * Handles retrieval of a financial summary with filtering.
+     */
+    private suspend fun getSummary(context: RoutingContext) = with(context) {
+        val queryParams = call.request.queryParameters
+        
+        val minAmount = queryParams["minAmount"]?.toLongOrNull()
+        val maxAmount = queryParams["maxAmount"]?.toLongOrNull()
+        val categories = queryParams.getAll("category")
+        val startDate = queryParams["startDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
+        val endDate = queryParams["endDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
+
+        val summary = getSummaryQuery.execute(
+            minAmount = minAmount,
+            maxAmount = maxAmount,
+            categories = categories,
+            startDate = startDate,
+            endDate = endDate
+        )
+        
+        call.respond(HttpStatusCode.OK, summary)
+    }
+
+
 
     /**
      * Registers financial record related routes under /finance/records.
@@ -169,8 +197,13 @@ internal class RecordController(
             withPermission(Permission.RECORDS_VIEW) {
                 route("/finance/records") {
                     get { listRecords(this) }
+                    get("/summary") { getSummary(this) }
                     get("/{id}") { getRecord(this) }
                 }
+            }
+
+            withPermission(Permission.DASHBOARD_VIEW) {
+                get("/finance/summary") { getSummary(this) }
             }
         }
     }

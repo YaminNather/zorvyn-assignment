@@ -4,9 +4,12 @@ import com.example.finance.application.commands.CreateRecordCommand
 import com.example.finance.application.commands.UpdateRecordCommand
 import com.example.finance.application.commands.DeleteRecordCommand
 import com.example.finance.application.queries.record.GetRecordQuery
+import com.example.finance.application.queries.record.GetSummaryQuery
 import com.example.finance.application.queries.record.ListRecordsQuery
 import com.example.finance.infrastructure.queries.record.ExposedGetRecordQuery
+import com.example.finance.infrastructure.queries.record.ExposedGetSummaryQuery
 import com.example.finance.infrastructure.queries.record.ExposedListRecordsQuery
+
 import com.example.finance.application.exceptions.RecordNotFoundException
 import com.example.finance.domain.record.RecordRepository
 import com.example.finance.domain.record.exceptions.InvalidCategoryException
@@ -37,9 +40,11 @@ class FinanceModule : AppModule() {
         // Application Queries (Interfaces mapped to Infrastructure implementations)
         single<GetRecordQuery> { ExposedGetRecordQuery() }
         single<ListRecordsQuery> { ExposedListRecordsQuery() }
+        single<GetSummaryQuery> { ExposedGetSummaryQuery() }
         
         // Presentation
-        single { RecordController(get(), get(), get(), get(), get()) }
+        single { RecordController(get(), get(), get(), get(), get(), get()) }
+
 
 
         

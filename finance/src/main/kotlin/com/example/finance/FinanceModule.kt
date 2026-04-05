@@ -11,6 +11,8 @@ import com.example.finance.infrastructure.queries.record.ExposedGetSummaryQuery
 import com.example.finance.infrastructure.queries.record.ExposedListRecordsQuery
 
 import com.example.finance.application.exceptions.RecordNotFoundException
+import com.example.finance.application.exceptions.UnauthorizedRecordAccessException
+
 import com.example.finance.domain.record.RecordRepository
 import com.example.finance.domain.record.exceptions.InvalidCategoryException
 import com.example.finance.infrastructure.persistence.ExposedRecordRepository
@@ -68,6 +70,15 @@ class FinanceModule : AppModule() {
                 statusCode = HttpStatusCode.NotFound.value
             )
         }
+        register<UnauthorizedRecordAccessException> { e ->
+            ProblemJsonException(
+                type = "unauthorized-access",
+                title = "Unauthorized Access",
+                detail = e.message ?: "You do not have permission to access this record.",
+                statusCode = HttpStatusCode.Forbidden.value
+            )
+        }
+
         Unit
     }
 

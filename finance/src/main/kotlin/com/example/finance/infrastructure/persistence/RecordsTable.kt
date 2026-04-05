@@ -18,6 +18,8 @@ object RecordsTable : Table("finance_records") {
     val description = varchar("description", 1024).nullable()
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at")
+    val deletedAt = datetime("deleted_at").nullable()
 
     override val primaryKey = PrimaryKey(id)
+
 }

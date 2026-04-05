@@ -24,7 +24,8 @@ internal class ExposedGetSummaryQuery : GetSummaryQuery {
         endDate: kotlin.time.Instant?
     ): SummaryQueryModel = suspendTransaction {
         // Build base query
-        val baseQuery = RecordsTable.selectAll()
+        val baseQuery = RecordsTable.selectAll().where { RecordsTable.deletedAt.isNull() }
+
 
         // Apply filters (reusing logic from ListRecordsQuery)
         val filters = mutableListOf<() -> Op<Boolean>>()
@@ -36,7 +37,7 @@ internal class ExposedGetSummaryQuery : GetSummaryQuery {
         if (endDate != null) filters += { RecordsTable.dateMillis lessEq endDate.toLocalDateTime(TimeZone.UTC) }
 
         filters.forEachIndexed { index, e ->
-            if (index == 0) baseQuery.where(e) else baseQuery.andWhere(e)
+            baseQuery.andWhere(e)
         }
 
         // Fetch filtered records - for summary we can calculate in memory to avoid multiple aggregations

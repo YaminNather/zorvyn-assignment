@@ -19,9 +19,8 @@ import java.util.*
  */
 internal class ExposedGetRecordQuery : GetRecordQuery {
     override suspend fun execute(recordId: UUID): RecordQueryModel = suspendTransaction {
-        // Direct SQL-like query to fetch required fields
         RecordsTable.selectAll()
-            .where { RecordsTable.id eq recordId }
+            .where { (RecordsTable.id eq recordId) and (RecordsTable.deletedAt.isNull()) }
             .singleOrNull()
             ?.let { 
                 RecordQueryModel(
@@ -30,9 +29,9 @@ internal class ExposedGetRecordQuery : GetRecordQuery {
                     category = it[RecordsTable.category],
                     date = it[RecordsTable.dateMillis].toInstant(TimeZone.UTC),
 
-
                     description = it[RecordsTable.description]
                 )
             } ?: throw RecordNotFoundException(recordId)
     }
+
 }

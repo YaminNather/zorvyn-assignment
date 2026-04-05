@@ -25,8 +25,11 @@ internal class Record(
         private set
     var description: String? = description
         private set
+    var deletedAt: Instant? = null
+        private set
 
     init {
+
         validate(category)
     }
 
@@ -59,6 +62,14 @@ internal class Record(
     fun changeDescription(newDescription: String?) {
         this.description = newDescription
     }
+
+    /**
+     * Marks the record as deleted.
+     */
+    fun markAsDeleted(deletedAt: Instant) {
+        this.deletedAt = deletedAt
+    }
+
 
     private fun validate(category: String) {
         if (category.isBlank()) throw InvalidCategoryException(category)

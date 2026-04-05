@@ -28,7 +28,8 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
         pageSize: Int
     ): ListRecordsResponse = suspendTransaction {
         // Build base query
-        val baseQuery = RecordsTable.selectAll()
+        val baseQuery = RecordsTable.selectAll().where { RecordsTable.deletedAt.isNull() }
+
 
         val query = mutableListOf<() -> Op<Boolean>>()
 
@@ -51,12 +52,7 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
         }
 
         query.forEachIndexed { index, e ->
-            if (index == 0) {
-                baseQuery.where(e)
-            }
-            else {
-                baseQuery.andWhere(e)
-            }
+            baseQuery.andWhere(e)
         }
 
 

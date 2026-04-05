@@ -23,9 +23,10 @@ import kotlin.time.Clock
 internal class ExposedRecordRepository : RecordRepository {
     override suspend fun findById(id: UUID): Record? = suspendTransaction {
         RecordsTable.selectAll()
-            .where { RecordsTable.id eq id }
+            .where { (RecordsTable.id eq id) and (RecordsTable.deletedAt.isNull()) }
             .singleOrNull()
             ?.toDomain()
+
     }
 
     override suspend fun save(record: Record): Unit = suspendTransaction {
@@ -38,24 +39,37 @@ internal class ExposedRecordRepository : RecordRepository {
             it[RecordsTable.dateMillis] = record.date.toLocalDateTime(TimeZone.UTC)
             it[RecordsTable.description] = record.description
             it[RecordsTable.updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+            it[RecordsTable.deletedAt] = record.deletedAt?.toLocalDateTime(TimeZone.UTC)
         }
+
     }
 
     override suspend fun delete(id: UUID): Unit = suspendTransaction {
-        RecordsTable.deleteWhere { RecordsTable.id eq id }
+        val record = findById(id) ?: return@suspendTransaction
+        record.markAsDeleted(Clock.System.now())
+        save(record)
     }
+
 
     override suspend fun count(): Long = suspendTransaction {
-        RecordsTable.selectAll().count()
+        RecordsTable.selectAll().where { RecordsTable.deletedAt.isNull() }.count()
     }
 
+
     private fun ResultRow.toDomain(): Record {
-        return Record(
+        val record = Record(
             id = this[RecordsTable.id],
             amount = this[RecordsTable.amount],
             category = this[RecordsTable.category],
             date = this[RecordsTable.dateMillis].toInstant(UtcOffset.ZERO),
             description = this[RecordsTable.description]
         )
+        
+        this[RecordsTable.deletedAt]?.let {
+            record.markAsDeleted(it.toInstant(UtcOffset.ZERO))
+        }
+        
+        return record
     }
+
 }

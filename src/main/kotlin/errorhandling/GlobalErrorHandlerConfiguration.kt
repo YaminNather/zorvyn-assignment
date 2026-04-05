@@ -9,8 +9,10 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
-import io.ktor.server.plugins.requestvalidation.RequestValidationException
+import io.ktor.server.plugins.requestvalidation.RequestValidationException as KtorRequestValidationException
+import com.example.sharedkernel.errorhandling.RequestValidationException as CustomRequestValidationException
 import kotlinx.serialization.json.JsonPrimitive
+
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 
@@ -20,7 +22,7 @@ fun Application.configureProblemJsonGlobalErrorHandler(appModules: List<AppModul
     }
 
     install(StatusPages) {
-        exception<RequestValidationException> { call, cause ->
+        exception<KtorRequestValidationException> { call, cause ->
             val problemJsonException = ProblemJsonException(
                 type = "validation-failed",
                 title = "Request Validation Failed",
@@ -34,6 +36,19 @@ fun Application.configureProblemJsonGlobalErrorHandler(appModules: List<AppModul
             call.response.status(HttpStatusCode.fromValue(problemJsonException.statusCode))
             call.respond(problemJsonException)
         }
+
+        exception<CustomRequestValidationException> { call, cause ->
+            val problemJsonException = ProblemJsonException(
+                type = "bad-request",
+                title = "Bad Request",
+                detail = cause.message ?: "The request contains invalid data",
+                statusCode = HttpStatusCode.BadRequest.value
+            )
+            call.response.headers.append(HttpHeaders.ContentType, "application/problem+json")
+            call.response.status(HttpStatusCode.fromValue(problemJsonException.statusCode))
+            call.respond(problemJsonException)
+        }
+
 
         exception<Throwable> { call, cause ->
             val problemJsonException = mapperRegistry.resolve(cause)

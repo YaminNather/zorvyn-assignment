@@ -21,7 +21,9 @@ import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
 import com.example.sharedkernel.authorization.Permission
 import com.example.sharedkernel.authorization.withPermission
+import com.example.sharedkernel.errorhandling.RequestValidationException
 import java.util.*
+
 
 
 
@@ -61,12 +63,13 @@ internal class RecordController(
      * Handles the update of an existing financial record.
      */
     private suspend fun updateRecord(context: RoutingContext) = with(context) {
-        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing record ID"))
+        val idParam = call.parameters["id"] ?: throw RequestValidationException("Missing record ID")
         val recordId = try {
             UUID.fromString(idParam)
         } catch (e: Exception) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Invalid record ID format"))
+            throw RequestValidationException("Invalid record ID format")
         }
+
 
         val request = call.receive<UpdateRecordRequestBody>()
         
@@ -87,12 +90,13 @@ internal class RecordController(
      * Handles the deletion of a financial record.
      */
     private suspend fun deleteRecord(context: RoutingContext) = with(context) {
-        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing record ID"))
+        val idParam = call.parameters["id"] ?: throw RequestValidationException("Missing record ID")
         val recordId = try {
             UUID.fromString(idParam)
         } catch (e: Exception) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Invalid record ID format"))
+            throw RequestValidationException("Invalid record ID format")
         }
+
 
         deleteRecordCommand.execute(recordId)
         
@@ -101,12 +105,13 @@ internal class RecordController(
      * Handles the retrieval of a single financial record.
      */
     private suspend fun getRecord(context: RoutingContext) = with(context) {
-        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing record ID"))
+        val idParam = call.parameters["id"] ?: throw RequestValidationException("Missing record ID")
         val recordId = try {
             UUID.fromString(idParam)
         } catch (e: Exception) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Invalid record ID format"))
+            throw RequestValidationException("Invalid record ID format")
         }
+
 
         val record = getRecordQuery.execute(recordId)
         
@@ -129,11 +134,12 @@ internal class RecordController(
 
 
         if (minAmount != null && maxAmount != null && minAmount > maxAmount) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "minAmount cannot be greater than maxAmount"))
+            throw RequestValidationException("minAmount cannot be greater than maxAmount")
         }
         if (startDate != null && endDate != null && startDate > endDate) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "startDate cannot be after endDate"))
+            throw RequestValidationException("startDate cannot be after endDate")
         }
+
 
 
         val page = (queryParams["page"]?.toIntOrNull() ?: 1).coerceAtLeast(1)
@@ -166,12 +172,13 @@ internal class RecordController(
         val endDate = queryParams["endDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
 
         if (minAmount != null && maxAmount != null && minAmount > maxAmount) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "minAmount cannot be greater than maxAmount"))
+            throw RequestValidationException("minAmount cannot be greater than maxAmount")
         }
 
         if (startDate != null && endDate != null && startDate > endDate) {
-            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "startDate cannot be after endDate"))
+            throw RequestValidationException("startDate cannot be after endDate")
         }
+
 
         val summary = getSummaryQuery.execute(
 

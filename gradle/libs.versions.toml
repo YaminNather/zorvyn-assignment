@@ -31,6 +31,7 @@ bcrypt = { module = "at.favre.lib:bcrypt", version = "0.10.2" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 
+
 ktor-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 

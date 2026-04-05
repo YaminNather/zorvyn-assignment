@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import java.time.Instant
+import java.time.Instant as JavaInstant
+
 
 /**
  * Implementation of [ListRecordsQuery] using Exposed with R2DBC support.
@@ -18,8 +19,10 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
         minAmount: Long?,
         maxAmount: Long?,
         categories: List<String>?,
-        startDate: Instant?,
-        endDate: Instant?,
+        startDate: kotlin.time.Instant?,
+        endDate: kotlin.time.Instant?,
+
+
         page: Int,
         pageSize: Int
     ): ListRecordsResponse = suspendTransaction {
@@ -37,11 +40,13 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
             baseQuery.where { RecordsTable.category inList categories }
         }
         if (startDate != null) {
-            baseQuery.where { RecordsTable.dateMillis greaterEq startDate.toEpochMilli() }
+            baseQuery.where { RecordsTable.dateMillis greaterEq startDate.toEpochMilliseconds() }
         }
         if (endDate != null) {
-            baseQuery.where { RecordsTable.dateMillis lessEq endDate.toEpochMilli() }
+            baseQuery.where { RecordsTable.dateMillis lessEq endDate.toEpochMilliseconds() }
         }
+
+
         
         // Count total matches (before pagination)
         val totalCount = baseQuery.count()
@@ -57,7 +62,9 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
                     id = it[RecordsTable.id].toString(),
                     amount = it[RecordsTable.amount],
                     category = it[RecordsTable.category],
-                    date = Instant.ofEpochMilli(it[RecordsTable.dateMillis]).toString(),
+                    date = kotlin.time.Instant.fromEpochMilliseconds(it[RecordsTable.dateMillis]),
+
+
                     description = it[RecordsTable.description]
                 )
             }

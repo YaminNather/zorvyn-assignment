@@ -1,5 +1,6 @@
 package com.example.finance.presentation.controllers.record.models
 
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class CreateRecordRequestBody(
     val amount: Long,
     val category: String,
-    val date: String, // Expect ISO-8601 string, e.g. "2024-03-20T10:00:00Z"
+    val date: Instant, // Expect ISO-8601 string, e.g. "2024-03-20T10:00:00Z"
     val description: String? = null
 )
 
@@ -22,9 +23,10 @@ data class CreateRecordRequestBody(
 data class UpdateRecordRequestBody(
     val amount: Long? = null,
     val category: String? = null,
-    val date: String? = null, // ISO-8601 string, e.g. "2024-03-20T10:00:00Z"
+    val date: Instant? = null, // ISO-8601 string, e.g. "2024-03-20T10:00:00Z"
     val description: String? = null
 )
+
 
 /**
  * Response DTO returned after successful record creation.

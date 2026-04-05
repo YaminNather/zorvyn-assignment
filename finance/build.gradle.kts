@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 group = "com.example"
@@ -21,6 +22,8 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.exposed.r2dbc)
     implementation(libs.ktor.server.request.validation)
+    implementation(libs.kotlinx.datetime)
+
 
     implementation(project(":sharedkernel"))
 }

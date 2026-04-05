@@ -20,8 +20,11 @@ import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
 import com.example.sharedkernel.authorization.Permission
 import com.example.sharedkernel.authorization.withPermission
-import java.time.Instant
 import java.util.*
+
+
+
+
 
 /**
  * Controller to handle API requests related to financial records.
@@ -39,18 +42,16 @@ internal class RecordController(
      * Parses the request body and delegates to CreateRecordCommand.
      */
     private suspend fun createRecord(context: RoutingContext) = with(context) {
-        val principal = call.principal<JWTPrincipal>()
-        val userIdString = principal?.payload?.subject ?: return@with call.respond(HttpStatusCode.Unauthorized)
-        val userId = UUID.fromString(userIdString)
-
         val request = call.receive<CreateRecordRequestBody>()
         
         val id = createRecordCommand.execute(
             amount = request.amount,
             category = request.category,
-            date = Instant.parse(request.date),
+            date = java.time.Instant.ofEpochMilli(request.date.toEpochMilliseconds()),
+
             description = request.description
         )
+
         
         call.respond(HttpStatusCode.Created, CreateRecordResponseBody(id.toString()))
     }
@@ -59,10 +60,6 @@ internal class RecordController(
      * Handles the update of an existing financial record.
      */
     private suspend fun updateRecord(context: RoutingContext) = with(context) {
-        val principal = call.principal<JWTPrincipal>()
-        val userIdString = principal?.payload?.subject ?: return@with call.respond(HttpStatusCode.Unauthorized)
-        val userId = UUID.fromString(userIdString)
-
         val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing record ID"))
         val recordId = try {
             UUID.fromString(idParam)
@@ -76,9 +73,11 @@ internal class RecordController(
             recordId = recordId,
             amount = request.amount,
             category = request.category,
-            date = request.date?.let { Instant.parse(it) },
+            date = request.date?.let { java.time.Instant.ofEpochMilli(it.toEpochMilliseconds()) },
+
             description = request.description
         )
+
         
         call.respond(HttpStatusCode.NoContent)
     }
@@ -122,8 +121,12 @@ internal class RecordController(
         val minAmount = queryParams["minAmount"]?.toLongOrNull()
         val maxAmount = queryParams["maxAmount"]?.toLongOrNull()
         val categories = queryParams.getAll("category") // Get multiple if provided
-        val startDate = queryParams["startDate"]?.let { try { Instant.parse(it) } catch (e: Exception) { null } }
-        val endDate = queryParams["endDate"]?.let { try { Instant.parse(it) } catch (e: Exception) { null } }
+        val startDate = queryParams["startDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
+        val endDate = queryParams["endDate"]?.let { try { kotlin.time.Instant.parse(it) } catch (e: Exception) { null } }
+
+
+
+
         val page = queryParams["page"]?.toIntOrNull() ?: 1
         val pageSize = queryParams["pageSize"]?.toIntOrNull() ?: 20
         
@@ -153,13 +156,9 @@ internal class RecordController(
                         validate<CreateRecordRequestBody> { body ->
                             if (body.category.isBlank()) ValidationResult.Invalid("Category cannot be blank")
                             else if (body.amount == 0L) ValidationResult.Invalid("Amount cannot be zero")
-                            else try {
-                                Instant.parse(body.date)
-                                ValidationResult.Valid
-                            } catch (e: Exception) {
-                                ValidationResult.Invalid("Invalid date format. Expected ISO-8601.")
-                            }
+                            else ValidationResult.Valid
                         }
+
                     }
 
                     post { createRecord(this) }

@@ -1,7 +1,7 @@
 package com.example.finance.application.queries.record
 
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
-import java.time.Instant
 
 /**
  * Interface for listing financial records with support for filtering and pagination.

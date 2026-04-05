@@ -1,5 +1,6 @@
 package com.example.finance.application.queries.record
 
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
@@ -12,6 +13,7 @@ data class RecordQueryModel(
     val id: String,
     val amount: Long,
     val category: String,
-    val date: String, // ISO-8601 string
+    val date: Instant, // ISO-8601 string
     val description: String?
 )
+

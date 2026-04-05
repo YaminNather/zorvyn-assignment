@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.singleOrNull
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import java.time.Instant
+import java.time.Instant as JavaInstant
 import java.util.*
+
 
 /**
  * Implementation of [GetRecordQuery] using Exposed with R2DBC support.
@@ -26,7 +27,9 @@ internal class ExposedGetRecordQuery : GetRecordQuery {
                     id = it[RecordsTable.id].toString(),
                     amount = it[RecordsTable.amount],
                     category = it[RecordsTable.category],
-                    date = Instant.ofEpochMilli(it[RecordsTable.dateMillis]).toString(),
+                    date = kotlin.time.Instant.fromEpochMilliseconds(it[RecordsTable.dateMillis]),
+
+
                     description = it[RecordsTable.description]
                 )
             } ?: throw RecordNotFoundException(recordId)

@@ -1,8 +1,8 @@
 package com.example.finance.domain.record
 
 import com.example.finance.domain.record.exceptions.InvalidCategoryException
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 /**
  * Represents a single financial record belonging to a user.

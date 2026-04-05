@@ -12,7 +12,6 @@ import com.example.finance.presentation.controllers.record.models.CreateRecordRe
 import com.example.finance.presentation.controllers.record.models.UpdateRecordRequestBody
 import io.ktor.http.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -21,8 +20,6 @@ import io.ktor.server.plugins.requestvalidation.ValidationResult
 import com.example.sharedkernel.authorization.Permission
 import com.example.sharedkernel.authorization.withPermission
 import java.util.*
-
-
 
 
 
@@ -47,7 +44,7 @@ internal class RecordController(
         val id = createRecordCommand.execute(
             amount = request.amount,
             category = request.category,
-            date = java.time.Instant.ofEpochMilli(request.date.toEpochMilliseconds()),
+            date = request.date,
 
             description = request.description
         )
@@ -73,7 +70,7 @@ internal class RecordController(
             recordId = recordId,
             amount = request.amount,
             category = request.category,
-            date = request.date?.let { java.time.Instant.ofEpochMilli(it.toEpochMilliseconds()) },
+            date = request.date,
 
             description = request.description
         )

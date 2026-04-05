@@ -1,10 +1,9 @@
 package com.example.finance.application.commands
 
 import com.example.finance.application.exceptions.RecordNotFoundException
-import com.example.finance.application.exceptions.UnauthorizedRecordAccessException
 import com.example.finance.domain.record.RecordRepository
-import java.time.Instant
 import java.util.*
+import kotlin.time.Instant
 
 /**
  * Command to update an existing financial record.
@@ -15,7 +14,6 @@ internal class UpdateRecordCommand(
 ) {
     /**
      * Executes the record update process.
-     * @param userId The ID of the authenticated user attempting the update.
      * @param recordId The unique identifier of the record to modify.
      * @param amount The new amount to set, or null to keep current value.
      * @param category The new category to set, or null to keep current value.

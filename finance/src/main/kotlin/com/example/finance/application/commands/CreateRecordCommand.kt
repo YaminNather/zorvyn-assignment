@@ -2,8 +2,8 @@ package com.example.finance.application.commands
 
 import com.example.finance.domain.record.Record
 import com.example.finance.domain.record.RecordRepository
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 /**
  * Command to create a new financial record.
@@ -27,7 +27,7 @@ internal class CreateRecordCommand(
             amount = amount,
             category = category,
             date = date,
-            description = description
+            description = description,
         )
 
         // Persist the record

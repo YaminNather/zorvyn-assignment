@@ -5,10 +5,12 @@ import com.example.finance.application.queries.record.ListRecordsResponse
 import com.example.finance.application.queries.record.RecordQueryModel
 import com.example.finance.infrastructure.persistence.RecordsTable
 import kotlinx.coroutines.flow.toList
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import java.time.Instant as JavaInstant
 
 
 /**
@@ -21,8 +23,6 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
         categories: List<String>?,
         startDate: kotlin.time.Instant?,
         endDate: kotlin.time.Instant?,
-
-
         page: Int,
         pageSize: Int
     ): ListRecordsResponse = suspendTransaction {
@@ -40,10 +40,10 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
             baseQuery.where { RecordsTable.category inList categories }
         }
         if (startDate != null) {
-            baseQuery.where { RecordsTable.dateMillis greaterEq startDate.toEpochMilliseconds() }
+            baseQuery.where { RecordsTable.dateMillis greaterEq startDate.toLocalDateTime(TimeZone.UTC) }
         }
         if (endDate != null) {
-            baseQuery.where { RecordsTable.dateMillis lessEq endDate.toEpochMilliseconds() }
+            baseQuery.where { RecordsTable.dateMillis lessEq endDate.toLocalDateTime(TimeZone.UTC) }
         }
 
 
@@ -62,7 +62,7 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
                     id = it[RecordsTable.id].toString(),
                     amount = it[RecordsTable.amount],
                     category = it[RecordsTable.category],
-                    date = kotlin.time.Instant.fromEpochMilliseconds(it[RecordsTable.dateMillis]),
+                    date = it[RecordsTable.dateMillis].toInstant(TimeZone.UTC),
 
 
                     description = it[RecordsTable.description]

@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.exposed.r2dbc)
     implementation(libs.ktor.server.request.validation)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.exposed.datetime)
 
 
     implementation(project(":sharedkernel"))

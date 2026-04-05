@@ -5,10 +5,11 @@ import com.example.finance.application.queries.record.GetRecordQuery
 import com.example.finance.application.queries.record.RecordQueryModel
 import com.example.finance.infrastructure.persistence.RecordsTable
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import java.time.Instant as JavaInstant
 import java.util.*
 
 
@@ -27,7 +28,7 @@ internal class ExposedGetRecordQuery : GetRecordQuery {
                     id = it[RecordsTable.id].toString(),
                     amount = it[RecordsTable.amount],
                     category = it[RecordsTable.category],
-                    date = kotlin.time.Instant.fromEpochMilliseconds(it[RecordsTable.dateMillis]),
+                    date = it[RecordsTable.dateMillis].toInstant(TimeZone.UTC),
 
 
                     description = it[RecordsTable.description]

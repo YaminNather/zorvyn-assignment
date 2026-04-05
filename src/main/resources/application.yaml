@@ -3,13 +3,23 @@ ktor:
         modules:
             - com.example.ApplicationKt.module
     deployment:
-        port: 8080
+        port: ${PORT:8080}
 jwt:
-  domain: "https://jwt-provider-domain/"
-  audience: "jwt-audience"
-  realm: "ktor sample app"
-  secret: "secret"
+  domain: ${JWT_DOMAIN}
+  audience: ${JWT_AUDIENCE}
+  realm: ${JWT_REALM}
+  secret: ${JWT_SECRET}
 db:
-  url: "r2dbc:postgresql://localhost:5432/zorvyn_assignment"
-  user: "postgres"
-  password: ""
+  url: ${DB_URL}
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+
+#jwt:
+#  domain: "https://jwt-provider-domain/"
+#  audience: "jwt-audience"
+#  realm: "ktor sample app"
+#  secret: "secret"
+#db:
+#  url: "r2dbc:postgresql://localhost:5432/zorvyn_assignment"
+#  user: "postgres"
+#  password: ""

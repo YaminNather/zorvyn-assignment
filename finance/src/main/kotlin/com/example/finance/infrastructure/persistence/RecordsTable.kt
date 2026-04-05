@@ -14,6 +14,8 @@ object RecordsTable : Table("finance_records") {
     val category = varchar("category", 255)
     val dateMillis = long("date_millis")
     val description = varchar("description", 1024).nullable()
+    val createdAt = long("created_at")
+    val updatedAt = long("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

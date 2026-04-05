@@ -31,6 +31,9 @@ internal class ExposedRecordRepository : RecordRepository {
     }
 
     override suspend fun save(record: Record): Unit = suspendTransaction {
+        val now = System.currentTimeMillis()
+        val existing = RecordsTable.selectAll().where { RecordsTable.id eq record.id }.singleOrNull()
+
         RecordsTable.upsert {
             it[RecordsTable.id] = record.id
             it[RecordsTable.userId] = record.userId
@@ -38,6 +41,8 @@ internal class ExposedRecordRepository : RecordRepository {
             it[RecordsTable.category] = record.category
             it[RecordsTable.dateMillis] = record.date.toEpochMilli()
             it[RecordsTable.description] = record.description
+            it[RecordsTable.createdAt] = existing?.get(RecordsTable.createdAt) ?: now
+            it[RecordsTable.updatedAt] = now
         }
     }
 

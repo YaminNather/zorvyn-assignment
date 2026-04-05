@@ -32,6 +32,9 @@ internal class ExposedUserRepository : UserRepository {
     }
 
     override suspend fun save(user: User): Unit = suspendTransaction {
+        val now = System.currentTimeMillis()
+        val existing = UsersTable.selectAll().where { UsersTable.id eq user.id }.singleOrNull()
+
         UsersTable.upsert {
             it[UsersTable.id] = user.id
             it[UsersTable.name] = user.name
@@ -39,6 +42,8 @@ internal class ExposedUserRepository : UserRepository {
             it[UsersTable.passwordHash] = user.passwordHash
             it[UsersTable.role] = user.getRole().name
             it[UsersTable.status] = user.getStatus().name
+            it[UsersTable.createdAt] = existing?.get(UsersTable.createdAt) ?: now
+            it[UsersTable.updatedAt] = now
         }
     }
 

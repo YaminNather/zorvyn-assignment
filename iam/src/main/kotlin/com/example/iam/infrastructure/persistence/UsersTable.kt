@@ -14,6 +14,8 @@ object UsersTable : Table("iam_users") {
     val passwordHash = varchar("password_hash", 255)
     val role = varchar("role", 50)
     val status = varchar("status", 50)
+    val createdAt = long("created_at")
+    val updatedAt = long("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

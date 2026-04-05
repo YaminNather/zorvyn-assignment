@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.exposed.core)
     implementation(libs.exposed.r2dbc)
+    implementation(libs.ktor.server.request.validation)
 
     implementation(project(":sharedkernel"))
 }

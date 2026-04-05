@@ -1,8 +1,10 @@
 package com.example.finance.presentation.controllers.record
 
 import com.example.finance.application.commands.CreateRecordCommand
+import com.example.finance.application.commands.UpdateRecordCommand
 import com.example.finance.presentation.controllers.record.models.CreateRecordRequestBody
 import com.example.finance.presentation.controllers.record.models.CreateRecordResponseBody
+import com.example.finance.presentation.controllers.record.models.UpdateRecordRequestBody
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -21,7 +23,8 @@ import java.util.*
  * Uses JWT principal to identify the current user.
  */
 internal class RecordController(
-    private val createRecordCommand: CreateRecordCommand
+    private val createRecordCommand: CreateRecordCommand,
+    private val updateRecordCommand: UpdateRecordCommand
 ) {
     /**
      * Handles the creation of a financial record for the authenticated user.
@@ -46,6 +49,36 @@ internal class RecordController(
     }
 
     /**
+     * Handles the update of an existing financial record.
+     */
+    private suspend fun updateRecord(context: RoutingContext) = with(context) {
+        val principal = call.principal<JWTPrincipal>()
+        val userIdString = principal?.payload?.subject ?: return@with call.respond(HttpStatusCode.Unauthorized)
+        val userId = UUID.fromString(userIdString)
+
+        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing record ID"))
+        val recordId = try {
+            UUID.fromString(idParam)
+        } catch (e: Exception) {
+            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Invalid record ID format"))
+        }
+
+        val request = call.receive<UpdateRecordRequestBody>()
+        
+        updateRecordCommand.execute(
+            userId = userId,
+            recordId = recordId,
+            amount = request.amount,
+            category = request.category,
+            date = request.date?.let { Instant.parse(it) },
+            description = request.description
+        )
+        
+        call.respond(HttpStatusCode.NoContent)
+    }
+
+
+    /**
      * Registers financial record related routes under /finance/records.
      * Implements request validation for robust API interactions.
      */
@@ -67,6 +100,8 @@ internal class RecordController(
                     }
 
                     post { createRecord(this) }
+                    
+                    patch("/{id}") { updateRecord(this) }
                 }
             }
         }

@@ -1,6 +1,9 @@
 package com.example.finance
 
 import com.example.finance.application.commands.CreateRecordCommand
+import com.example.finance.application.commands.UpdateRecordCommand
+import com.example.finance.application.exceptions.RecordNotFoundException
+import com.example.finance.application.exceptions.UnauthorizedRecordAccessException
 import com.example.finance.domain.record.RecordRepository
 import com.example.finance.domain.record.exceptions.InvalidCategoryException
 import com.example.finance.infrastructure.persistence.ExposedRecordRepository
@@ -24,9 +27,10 @@ class FinanceModule : AppModule() {
         
         // Application
         single { CreateRecordCommand(get()) }
+        single { UpdateRecordCommand(get()) }
         
         // Presentation
-        single { RecordController(get()) }
+        single { RecordController(get(), get()) }
         
         Unit
     }
@@ -38,6 +42,22 @@ class FinanceModule : AppModule() {
                 title = "Invalid Category",
                 detail = e.message ?: "The specified category is invalid.",
                 statusCode = HttpStatusCode.BadRequest.value
+            )
+        }
+        register<RecordNotFoundException> { e ->
+            ProblemJsonException(
+                type = "record-not-found",
+                title = "Record Not Found",
+                detail = e.message ?: "The requested financial record was not found.",
+                statusCode = HttpStatusCode.NotFound.value
+            )
+        }
+        register<UnauthorizedRecordAccessException> { e ->
+            ProblemJsonException(
+                type = "unauthorized-record-access",
+                title = "Unauthorized Access",
+                detail = "You do not have permission to access or modify this record.",
+                statusCode = HttpStatusCode.Forbidden.value
             )
         }
         Unit

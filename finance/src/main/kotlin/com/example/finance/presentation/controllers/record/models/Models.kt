@@ -15,9 +15,22 @@ data class CreateRecordRequestBody(
 )
 
 /**
+ * Request DTO for updating an existing financial record.
+ * All fields are optional; only provided fields will be updated.
+ */
+@Serializable
+data class UpdateRecordRequestBody(
+    val amount: Long? = null,
+    val category: String? = null,
+    val date: String? = null, // ISO-8601 string, e.g. "2024-03-20T10:00:00Z"
+    val description: String? = null
+)
+
+/**
  * Response DTO returned after successful record creation.
  */
 @Serializable
 data class CreateRecordResponseBody(
     val id: String
 )
+

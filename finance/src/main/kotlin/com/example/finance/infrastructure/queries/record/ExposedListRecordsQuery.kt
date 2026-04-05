@@ -9,6 +9,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.r2dbc.andWhere
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 
@@ -28,26 +29,37 @@ internal class ExposedListRecordsQuery : ListRecordsQuery {
     ): ListRecordsResponse = suspendTransaction {
         // Build base query
         val baseQuery = RecordsTable.selectAll()
-        
+
+        val query = mutableListOf<() -> Op<Boolean>>()
+
+        val queryCount = 0
         // Dynamic filtering
         if (minAmount != null) {
-            baseQuery.where { RecordsTable.amount greaterEq minAmount }
+            query += { RecordsTable.amount greaterEq minAmount }
         }
         if (maxAmount != null) {
-            baseQuery.where { RecordsTable.amount lessEq maxAmount }
+            query += { RecordsTable.amount lessEq maxAmount }
         }
         if (!categories.isNullOrEmpty()) {
-            baseQuery.where { RecordsTable.category inList categories }
+            query += { RecordsTable.category inList categories }
         }
         if (startDate != null) {
-            baseQuery.where { RecordsTable.dateMillis greaterEq startDate.toLocalDateTime(TimeZone.UTC) }
+            query += { RecordsTable.dateMillis greaterEq startDate.toLocalDateTime(TimeZone.UTC) }
         }
         if (endDate != null) {
-            baseQuery.where { RecordsTable.dateMillis lessEq endDate.toLocalDateTime(TimeZone.UTC) }
+            query += { RecordsTable.dateMillis lessEq endDate.toLocalDateTime(TimeZone.UTC) }
+        }
+
+        query.forEachIndexed { index, e ->
+            if (index == 0) {
+                baseQuery.where(e)
+            }
+            else {
+                baseQuery.andWhere(e)
+            }
         }
 
 
-        
         // Count total matches (before pagination)
         val totalCount = baseQuery.count()
         

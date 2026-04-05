@@ -11,6 +11,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
+import com.example.sharedkernel.authorization.Permission
+import com.example.sharedkernel.authorization.withPermission
 import java.time.Instant
 import java.util.*
 
@@ -49,21 +51,23 @@ internal class RecordController(
      */
     fun registerRoutes(route: Route) = with(route) {
         authenticate {
-            route("/finance/records") {
-                install(RequestValidation) {
-                    validate<CreateRecordRequestBody> { body ->
-                        if (body.category.isBlank()) ValidationResult.Invalid("Category cannot be blank")
-                        else if (body.amount == 0L) ValidationResult.Invalid("Amount cannot be zero")
-                        else try {
-                            Instant.parse(body.date)
-                            ValidationResult.Valid
-                        } catch (e: Exception) {
-                            ValidationResult.Invalid("Invalid date format. Expected ISO-8601.")
+            withPermission(Permission.RECORDS_MANAGE) {
+                route("/finance/records") {
+                    install(RequestValidation) {
+                        validate<CreateRecordRequestBody> { body ->
+                            if (body.category.isBlank()) ValidationResult.Invalid("Category cannot be blank")
+                            else if (body.amount == 0L) ValidationResult.Invalid("Amount cannot be zero")
+                            else try {
+                                Instant.parse(body.date)
+                                ValidationResult.Valid
+                            } catch (e: Exception) {
+                                ValidationResult.Invalid("Invalid date format. Expected ISO-8601.")
+                            }
                         }
                     }
+
+                    post { createRecord(this) }
                 }
-                
-                post { createRecord(this) }
             }
         }
     }

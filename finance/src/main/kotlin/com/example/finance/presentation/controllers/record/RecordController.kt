@@ -3,7 +3,9 @@ package com.example.finance.presentation.controllers.record
 import com.example.finance.application.commands.CreateRecordCommand
 import com.example.finance.application.commands.UpdateRecordCommand
 import com.example.finance.application.commands.DeleteRecordCommand
+import com.example.finance.application.queries.record.GetRecordQuery
 import com.example.finance.presentation.controllers.record.models.CreateRecordRequestBody
+
 import com.example.finance.presentation.controllers.record.models.CreateRecordResponseBody
 import com.example.finance.presentation.controllers.record.models.UpdateRecordRequestBody
 import io.ktor.http.*
@@ -26,7 +28,8 @@ import java.util.*
 internal class RecordController(
     private val createRecordCommand: CreateRecordCommand,
     private val updateRecordCommand: UpdateRecordCommand,
-    private val deleteRecordCommand: DeleteRecordCommand
+    private val deleteRecordCommand: DeleteRecordCommand,
+    private val getRecordQuery: GetRecordQuery
 ) {
     /**
      * Handles the creation of a financial record for the authenticated user.
@@ -91,9 +94,21 @@ internal class RecordController(
         deleteRecordCommand.execute(recordId)
         
         call.respond(HttpStatusCode.NoContent)
+    }    /**
+     * Handles the retrieval of a single financial record.
+     */
+    private suspend fun getRecord(context: RoutingContext) = with(context) {
+        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing record ID"))
+        val recordId = try {
+            UUID.fromString(idParam)
+        } catch (e: Exception) {
+            return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Invalid record ID format"))
+        }
+
+        val record = getRecordQuery.execute(recordId)
+        
+        call.respond(HttpStatusCode.OK, record)
     }
-
-
 
     /**
      * Registers financial record related routes under /finance/records.
@@ -121,6 +136,12 @@ internal class RecordController(
                     patch("/{id}") { updateRecord(this) }
                     
                     delete("/{id}") { deleteRecord(this) }
+                }
+            }
+            
+            withPermission(Permission.RECORDS_VIEW) {
+                route("/finance/records") {
+                    get("/{id}") { getRecord(this) }
                 }
             }
         }

@@ -4,6 +4,7 @@ import com.example.iam.domain.user.User
 import com.example.iam.domain.user.UserRepository
 import com.example.iam.domain.role.Role
 import com.example.iam.domain.auth.PasswordHasher
+import com.example.iam.application.exceptions.UserAlreadyExistsException
 import java.util.UUID
 
 /**
@@ -25,6 +26,11 @@ internal class CreateUserCommand(
         password: String,
         roleName: String
     ): UUID {
+        // Enforce email uniqueness at the application layer
+        if (userRepository.findByEmail(email) != null) {
+            throw UserAlreadyExistsException(email)
+        }
+        
         // Resolve the static role
         val role = Role.fromName(roleName)
         

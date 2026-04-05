@@ -4,6 +4,7 @@ import com.example.iam.application.commands.CreateUserCommand
 import com.example.iam.application.commands.LoginCommand
 import com.example.iam.application.commands.ChangeUserRoleCommand
 import com.example.iam.application.commands.ChangeUserNameCommand
+import com.example.iam.application.exceptions.UserAlreadyExistsException
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
 import com.example.iam.domain.auth.JwtProvider
@@ -103,6 +104,14 @@ class IamModule : AppModule() {
                 title = "Invalid Name",
                 detail = e.message ?: "The provided name is invalid.",
                 statusCode = HttpStatusCode.BadRequest.value
+            )
+        }
+        register<UserAlreadyExistsException> { e ->
+            ProblemJsonException(
+                type = "user-already-exists",
+                title = "User Already Exists",
+                detail = e.message ?: "User with this email already exists.",
+                statusCode = HttpStatusCode.Conflict.value
             )
         }
         Unit

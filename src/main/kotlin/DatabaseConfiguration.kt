@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.finance.infrastructure.persistence.RecordsTable
 import com.example.iam.infrastructure.persistence.UsersTable
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -30,4 +31,5 @@ suspend fun Application.configureDatabase() {
  */
 suspend fun initializeSchema() = suspendTransaction {
     SchemaUtils.create(UsersTable)
+    SchemaUtils.create(RecordsTable)
 }

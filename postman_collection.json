@@ -1,0 +1,367 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+		"name": "Zorvyn Finance Backend",
+		"description": "API collection for the Finance Data Processing and Access Control system.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "IAM",
+			"item": [
+				{
+					"name": "Setup Admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/iam/setup/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"iam",
+								"setup",
+								"admin"
+							]
+						},
+						"description": "Initializes the application by creating the first admin user. Only works if the database is empty."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/iam/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"iam",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"roleName\": \"Analyst\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/iam/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"iam",
+								"user"
+							]
+						},
+						"description": "Creates a new user. Requires USERS_MANAGE permission."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Name",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Smith\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/iam/user/:id/name",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"iam",
+								"user",
+								":id",
+								"name"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Role",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleName\": \"Admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/iam/user/:id/role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"iam",
+								"user",
+								":id",
+								"role"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Finance",
+			"item": [
+				{
+					"name": "Create Record",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 50000,\n    \"category\": \"Salary\",\n    \"date\": \"2024-03-20T10:00:00Z\",\n    \"description\": \"March Salary Injection\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/finance/records",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"finance",
+								"records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Record",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 45000,\n    \"description\": \"Adjusted March Salary\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/finance/records/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"finance",
+								"records",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Record",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/finance/records/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"finance",
+								"records",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List/Filter Records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/finance/records?page=1&pageSize=20&minAmount=1000",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"finance",
+								"records"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "20"
+								},
+								{
+									"key": "minAmount",
+									"value": "1000"
+								},
+								{
+									"key": "maxAmount",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Salary",
+									"disabled": true
+								},
+								{
+									"key": "startDate",
+									"value": "2024-01-01T00:00:00Z",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieves a paginated list of records with optional filtering by amount, category, and date range."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Record",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/finance/records/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"finance",
+								"records",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

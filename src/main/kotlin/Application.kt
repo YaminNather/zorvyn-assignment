@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
 }
 
 suspend fun Application.module() {
-    val modules = listOf(IamModule())
+    val modules = listOf(IamModule(), FinanceModule())
 
     install (ContentNegotiation) {
         json()

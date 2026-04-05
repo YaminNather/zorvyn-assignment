@@ -18,9 +18,10 @@ internal interface RecordRepository {
     suspend fun save(record: Record)
 
     /**
-     * Removes a record by its unique identifier.
+     * Removes a record from the repository.
      */
     suspend fun delete(id: UUID)
+
 
     /**
      * Returns the total number of records.

@@ -4,6 +4,7 @@ import com.example.iam.application.commands.CreateUserCommand
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.ChangeUserRoleCommand
 import com.example.iam.application.commands.ChangeUserNameCommand
+import com.example.iam.application.queries.user.GetCurrentUserQuery
 import com.example.iam.presentation.controllers.user.models.CreateUserRequestBody
 import com.example.iam.presentation.controllers.user.models.ChangeUserRoleRequestBody
 import com.example.iam.presentation.controllers.user.models.ChangeUserNameRequestBody
@@ -15,14 +16,18 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
 import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
+import java.util.UUID
 
 internal class UserController(
     private val createUserCommand: CreateUserCommand,
     private val setupAdminCommand: SetupAdminCommand,
     private val changeUserRoleCommand: ChangeUserRoleCommand,
-    private val changeUserNameCommand: ChangeUserNameCommand
+    private val changeUserNameCommand: ChangeUserNameCommand,
+    private val getCurrentUserQuery: GetCurrentUserQuery
 ) {
     /**
      * Handles the user creation post request.
@@ -52,6 +57,18 @@ internal class UserController(
     }
 
     /**
+     * Retrieves the details of the currently authenticated user based on their JWT.
+     */
+    private suspend fun me(context: RoutingContext) = with(context) {
+        val principal = call.principal<JWTPrincipal>() ?: return@me call.respond(HttpStatusCode.Unauthorized)
+        val userId = UUID.fromString(principal.payload.subject)
+        
+        val details = getCurrentUserQuery.execute(userId)
+        call.respond(HttpStatusCode.OK, details)
+    }
+
+
+    /**
      * Registers user-related routes under the /user path.
      */
     fun registerRoutes(route: Route) = with(route) {
@@ -59,7 +76,11 @@ internal class UserController(
             post("/admin") { createAdminIfNone(this) }
         }
         authenticate {
+            route("/user") {
+                get("/me") { me(this) }
+            }
             withPermission(Permission.USERS_MANAGE) {
+
                 route("/user") {
                     install(RequestValidation) {
                         validate<CreateUserRequestBody> { body ->
@@ -82,7 +103,7 @@ internal class UserController(
 
                     patch("/{id}/name") {
                         val idParam = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
-                        val userId = java.util.UUID.fromString(idParam)
+                        val userId = UUID.fromString(idParam)
                         val request = call.receive<ChangeUserNameRequestBody>()
                         
                         changeUserNameCommand.execute(userId, request.name)
@@ -91,7 +112,7 @@ internal class UserController(
 
                     patch("/{id}/role") {
                         val idParam = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
-                        val userId = java.util.UUID.fromString(idParam)
+                        val userId = UUID.fromString(idParam)
                         val request = call.receive<ChangeUserRoleRequestBody>()
                         
                         changeUserRoleCommand.execute(userId, request.roleName)

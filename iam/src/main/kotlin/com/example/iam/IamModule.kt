@@ -4,12 +4,19 @@ import com.example.iam.application.commands.CreateUserCommand
 import com.example.iam.application.commands.LoginCommand
 import com.example.iam.application.commands.ChangeUserRoleCommand
 import com.example.iam.application.commands.ChangeUserNameCommand
+import com.example.iam.application.queries.user.GetCurrentUserQuery
+import com.example.iam.infrastructure.queries.user.ExposedGetCurrentUserQuery
 import com.example.iam.application.exceptions.UserAlreadyExistsException
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
+import com.example.iam.application.exceptions.InvalidRoleException
+import com.example.iam.application.exceptions.LastAdminCannotChangeRoleException
+import com.example.iam.application.exceptions.UserNotFoundException
 import com.example.iam.domain.auth.JwtProvider
 import com.example.iam.domain.auth.PasswordHasher
 import com.example.iam.domain.user.UserRepository
+import com.example.iam.domain.user.exceptions.AuthenticationException
+import com.example.iam.domain.user.exceptions.InvalidNameException
 import com.example.iam.infrastructure.auth.BcryptPasswordHasher
 import com.example.iam.infrastructure.auth.JwtTokenProvider
 import com.example.iam.infrastructure.persistence.ExposedUserRepository
@@ -19,6 +26,7 @@ import com.example.sharedkernel.errorhandling.ExceptionMapperRegistry
 import com.example.sharedkernel.errorhandling.ProblemJsonException
 import com.example.sharedkernel.module.AppModule
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.route
 import org.koin.core.module.Module
@@ -35,7 +43,7 @@ class IamModule : AppModule() {
         single<UserRepository> { ExposedUserRepository() }
         single<PasswordHasher> { BcryptPasswordHasher() }
         single<JwtProvider> {
-            val config = get<io.ktor.server.config.ApplicationConfig>()
+            val config = get<ApplicationConfig>()
             JwtTokenProvider(
                 secret = config.property("jwt.secret").getString(),
                 issuer = config.property("jwt.domain").getString(),
@@ -49,16 +57,17 @@ class IamModule : AppModule() {
         single { SetupAdminCommand(get(), get()) }
         single { ChangeUserRoleCommand(get()) }
         single { ChangeUserNameCommand(get()) }
+        single<GetCurrentUserQuery> { ExposedGetCurrentUserQuery() }
 
         // Controllers
-        single { UserController(get(), get(), get(), get()) }
+        single { UserController(get(), get(), get(), get(), get()) }
+
         single { AuthController(get()) }
         Unit
     }
 
     override fun errorMappers(registry: ExceptionMapperRegistry) = with(registry) {
-        // Register IAM specific exception mappers here if needed
-        register<com.example.iam.domain.user.exceptions.AuthenticationException> { e ->
+        register<AuthenticationException> { e ->
             ProblemJsonException(
                 type = "authentication-failed",
                 title = "Authentication Failed",
@@ -66,7 +75,7 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.Unauthorized.value
             )
         }
-        register<com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException> { e ->
+        register<AdminAlreadyExistsException> { e ->
             ProblemJsonException(
                 type = "admin-already-exists",
                 title = "Admin Already Exists",
@@ -74,7 +83,7 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.Conflict.value
             )
         }
-        register<com.example.iam.application.exceptions.UserNotFoundException> { e ->
+        register<UserNotFoundException> { e ->
             ProblemJsonException(
                 type = "user-not-found",
                 title = "User Not Found",
@@ -82,7 +91,7 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.NotFound.value
             )
         }
-        register<com.example.iam.application.exceptions.LastAdminCannotChangeRoleException> { e ->
+        register<LastAdminCannotChangeRoleException> { e ->
             ProblemJsonException(
                 type = "last-admin-role-change",
                 title = "Operation Not Permitted",
@@ -90,7 +99,7 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.Forbidden.value
             )
         }
-        register<com.example.iam.application.exceptions.InvalidRoleException> { e ->
+        register<InvalidRoleException> { e ->
             ProblemJsonException(
                 type = "invalid-role",
                 title = "Invalid Role",
@@ -98,7 +107,7 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.BadRequest.value
             )
         }
-        register<com.example.iam.domain.user.exceptions.InvalidNameException> { e ->
+        register<InvalidNameException> { e ->
             ProblemJsonException(
                 type = "invalid-name",
                 title = "Invalid Name",

@@ -78,6 +78,31 @@ internal class UserController(
         call.respond(HttpStatusCode.OK, details)
     }
 
+    /**
+     * Handles the request to change a user's name.
+     */
+    private suspend fun changeUserName(context: RoutingContext) = with(context) {
+        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
+        val userId = UUID.fromString(idParam)
+        val request = call.receive<ChangeUserNameRequestBody>()
+        
+        changeUserNameCommand.execute(userId, request.name)
+        call.respond(HttpStatusCode.NoContent)
+    }
+
+    /**
+     * Handles the request to change a user's assigned role.
+     */
+    private suspend fun changeUserRole(context: RoutingContext) = with(context) {
+        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
+        val userId = UUID.fromString(idParam)
+        val request = call.receive<ChangeUserRoleRequestBody>()
+        
+        changeUserRoleCommand.execute(userId, request.roleName)
+        call.respond(HttpStatusCode.NoContent)
+    }
+
+
 
     /**
      * Registers user-related routes under the /user path.
@@ -113,23 +138,9 @@ internal class UserController(
                     post { createUser(this) }
                     get { listUsers(this) }
 
-                    patch("/{id}/name") {
-                        val idParam = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
-                        val userId = UUID.fromString(idParam)
-                        val request = call.receive<ChangeUserNameRequestBody>()
-                        
-                        changeUserNameCommand.execute(userId, request.name)
-                        call.respond(HttpStatusCode.NoContent)
-                    }
+                    patch("/{id}/name") { changeUserName(this) }
 
-                    patch("/{id}/role") {
-                        val idParam = call.parameters["id"] ?: return@patch call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
-                        val userId = UUID.fromString(idParam)
-                        val request = call.receive<ChangeUserRoleRequestBody>()
-                        
-                        changeUserRoleCommand.execute(userId, request.roleName)
-                        call.respond(HttpStatusCode.NoContent)
-                    }
+                    patch("/{id}/role") { changeUserRole(this) }
                 }
             }
         }

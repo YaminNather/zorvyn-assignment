@@ -13,11 +13,6 @@ internal interface RecordRepository {
     suspend fun findById(id: UUID): Record?
 
     /**
-     * Resolves all records belonging to a specific user.
-     */
-    suspend fun findByUserId(userId: UUID): List<Record>
-
-    /**
      * Persists or updates a record entity.
      */
     suspend fun save(record: Record)
@@ -31,10 +26,4 @@ internal interface RecordRepository {
      * Returns the total number of records.
      */
     suspend fun count(): Long
-
-    /**
-     * Aggregates the total amount for a specific user. 
-     * Positive amounts are income, negative are expenses.
-     */
-    suspend fun sumAmountByUserId(userId: UUID): Long
 }

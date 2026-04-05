@@ -9,7 +9,6 @@ import org.jetbrains.exposed.v1.core.java.*
  */
 object RecordsTable : Table("finance_records") {
     val id = javaUUID("id")
-    val userId = javaUUID("user_id")
     val amount = long("amount")
     val category = varchar("category", 255)
     val dateMillis = long("date_millis")

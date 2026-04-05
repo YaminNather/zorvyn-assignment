@@ -23,36 +23,23 @@ internal class UpdateRecordCommand(
      * @param description The new description to set. If null is passed via DTO, it updates the record.
      */
     suspend fun execute(
-        userId: UUID,
         recordId: UUID,
         amount: Long?,
         category: String?,
         date: Instant?,
         description: String?
     ) {
-        // Fetch existing record
         val record = recordRepository.findById(recordId)
             ?: throw RecordNotFoundException(recordId)
 
-        // Ownership Check: Users can only modify their own financial records
-        if (record.userId != userId) {
-            throw UnauthorizedRecordAccessException(userId, recordId)
-        }
-
-        // Apply selectively provided updates via domain methods
         amount?.let { record.changeAmount(it) }
         category?.let { record.changeCategory(it) }
         date?.let { record.changeDate(it) }
         
-        // Pass the description directly as it can be null (intentional reset)
-        // Note: For now, we assume if it's passed here, it's intended to be updated.
-        // If we want a skip-only-if-null pattern, we'd need a different approach.
-        // For this assignment, we'll keep it simple.
         if (description != null) {
             record.changeDescription(description)
         }
 
-        // Persist changes
         recordRepository.save(record)
     }
 }

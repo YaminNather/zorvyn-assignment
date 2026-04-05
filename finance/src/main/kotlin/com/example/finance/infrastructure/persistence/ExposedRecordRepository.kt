@@ -2,7 +2,6 @@ package com.example.finance.infrastructure.persistence
 
 import com.example.finance.domain.record.Record
 import com.example.finance.domain.record.RecordRepository
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.singleOrNull
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -23,20 +22,12 @@ internal class ExposedRecordRepository : RecordRepository {
             ?.toDomain()
     }
 
-    override suspend fun findByUserId(userId: UUID): List<Record> = suspendTransaction {
-        RecordsTable.selectAll()
-            .where { RecordsTable.userId eq userId }
-            .toList()
-            .map { it.toDomain() }
-    }
-
     override suspend fun save(record: Record): Unit = suspendTransaction {
         val now = System.currentTimeMillis()
         val existing = RecordsTable.selectAll().where { RecordsTable.id eq record.id }.singleOrNull()
 
         RecordsTable.upsert {
             it[RecordsTable.id] = record.id
-            it[RecordsTable.userId] = record.userId
             it[RecordsTable.amount] = record.amount
             it[RecordsTable.category] = record.category
             it[RecordsTable.dateMillis] = record.date.toEpochMilli()
@@ -54,17 +45,9 @@ internal class ExposedRecordRepository : RecordRepository {
         RecordsTable.selectAll().count()
     }
 
-    override suspend fun sumAmountByUserId(userId: UUID): Long = suspendTransaction {
-        RecordsTable.selectAll()
-            .where { RecordsTable.userId eq userId }
-            .toList()
-            .sumOf { it[RecordsTable.amount] }
-    }
-
     private fun ResultRow.toDomain(): Record {
         return Record(
             id = this[RecordsTable.id],
-            userId = this[RecordsTable.userId],
             amount = this[RecordsTable.amount],
             category = this[RecordsTable.category],
             date = Instant.ofEpochMilli(this[RecordsTable.dateMillis]),

@@ -38,7 +38,6 @@ internal class RecordController(
         val request = call.receive<CreateRecordRequestBody>()
         
         val id = createRecordCommand.execute(
-            userId = userId,
             amount = request.amount,
             category = request.category,
             date = Instant.parse(request.date),
@@ -66,7 +65,6 @@ internal class RecordController(
         val request = call.receive<UpdateRecordRequestBody>()
         
         updateRecordCommand.execute(
-            userId = userId,
             recordId = recordId,
             amount = request.amount,
             category = request.category,

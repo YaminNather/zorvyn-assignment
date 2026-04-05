@@ -12,7 +12,6 @@ import java.util.UUID
  */
 internal class Record(
     val id: UUID,
-    val userId: UUID,
     amount: Long,
     category: String,
     date: Instant,
@@ -71,7 +70,6 @@ internal class Record(
          * Auto-generates a unique ID and validates initial state.
          */
         fun create(
-            userId: UUID,
             amount: Long,
             category: String,
             date: Instant,
@@ -82,7 +80,6 @@ internal class Record(
             
             return Record(
                 id = UUID.randomUUID(),
-                userId = userId,
                 amount = amount,
                 category = category,
                 date = date,

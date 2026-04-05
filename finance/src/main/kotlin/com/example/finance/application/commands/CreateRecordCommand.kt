@@ -17,7 +17,6 @@ internal class CreateRecordCommand(
      * @return The unique identifier of the newly created record.
      */
     suspend fun execute(
-        userId: UUID,
         amount: Long,
         category: String,
         date: Instant,
@@ -25,7 +24,6 @@ internal class CreateRecordCommand(
     ): UUID {
         // Create the domain entity (validations happen inside Record.create and Record init)
         val record = Record.create(
-            userId = userId,
             amount = amount,
             category = category,
             date = date,

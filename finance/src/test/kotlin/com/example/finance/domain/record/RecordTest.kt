@@ -12,21 +12,19 @@ import kotlin.test.*
  */
 internal class RecordTest {
 
-    private val testUserId = UUID.randomUUID()
     private val testAmount = 10000L // Rs 100.00
     private val testCategory = "Food"
     private val testDate = Instant.now()
 
     @Test
     fun `should create record with generated id and handle positive and negative amounts`() {
-        val income = Record.create(testUserId, testAmount, testCategory, testDate)
+        val income = Record.create(testAmount, testCategory, testDate)
         assertTrue(income.amount > 0, "Amount should be positive for income")
 
-        val expense = Record.create(testUserId, -5000L, testCategory, testDate)
+        val expense = Record.create(-5000L, testCategory, testDate)
         assertTrue(expense.amount < 0, "Amount should be negative for expense")
 
         assertNotNull(income.id)
-        assertEquals(testUserId, income.userId)
         assertEquals(testAmount, income.amount)
         assertEquals(testCategory, income.category)
         assertEquals(testDate, income.date)
@@ -35,13 +33,13 @@ internal class RecordTest {
     @Test
     fun `should fail to create record with blank category`() {
         assertFailsWith<InvalidCategoryException> {
-            Record.create(testUserId, testAmount, " ", testDate)
+            Record.create(testAmount, " ", testDate)
         }
     }
 
     @Test
     fun `should allow changing amount to both positive and negative values`() {
-        val record = Record.create(testUserId, testAmount, testCategory, testDate)
+        val record = Record.create(testAmount, testCategory, testDate)
         record.changeAmount(-5000L)
         assertEquals(-5000L, record.amount)
 
@@ -51,7 +49,7 @@ internal class RecordTest {
 
     @Test
     fun `should allow changing category with validation`() {
-        val record = Record.create(testUserId, testAmount, testCategory, testDate)
+        val record = Record.create(testAmount, testCategory, testDate)
         record.changeCategory("Salary")
         assertEquals("Salary", record.category)
 
@@ -62,7 +60,7 @@ internal class RecordTest {
 
     @Test
     fun `should allow changing date`() {
-        val record = Record.create(testUserId, testAmount, testCategory, testDate)
+        val record = Record.create(testAmount, testCategory, testDate)
         val newDate = Instant.now().plusSeconds(3600)
         record.changeDate(newDate)
         assertEquals(newDate, record.date)
@@ -70,7 +68,7 @@ internal class RecordTest {
 
     @Test
     fun `should allow changing description`() {
-        val record = Record.create(testUserId, testAmount, testCategory, testDate, "Old")
+        val record = Record.create(testAmount, testCategory, testDate, "Old")
         record.changeDescription("New")
         assertEquals("New", record.description)
         
@@ -83,7 +81,6 @@ internal class RecordTest {
         val id = UUID.randomUUID()
         val record = Record(
             id = id,
-            userId = testUserId,
             amount = 99999L,
             category = "External",
             date = testDate,
@@ -91,7 +88,6 @@ internal class RecordTest {
         )
         
         assertEquals(id, record.id)
-        assertEquals(testUserId, record.userId)
         assertEquals(99999L, record.amount)
         assertEquals("External", record.category)
     }

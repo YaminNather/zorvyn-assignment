@@ -1,8 +1,10 @@
 package com.example.iam.application.commands
 
+import com.example.iam.application.exceptions.InvalidRoleException
 import com.example.iam.application.exceptions.LastAdminCannotChangeRoleException
 import com.example.iam.application.exceptions.UserNotFoundException
 import com.example.iam.domain.role.Role
+import com.example.iam.domain.role.exceptions.InvalidRoleNameException
 import com.example.iam.domain.user.UserRepository
 import java.util.UUID
 
@@ -23,8 +25,8 @@ internal class ChangeUserRoleCommand(
         val user = userRepository.findById(userId) ?: throw UserNotFoundException(userId)
         val newRole = try {
             Role.fromName(newRoleName)
-        } catch (e: com.example.iam.domain.role.exceptions.InvalidRoleNameException) {
-            throw com.example.iam.application.exceptions.InvalidRoleException(newRoleName)
+        } catch (e: InvalidRoleNameException) {
+            throw InvalidRoleException(newRoleName)
         }
 
         // Protect the last admin from losing their permissions.

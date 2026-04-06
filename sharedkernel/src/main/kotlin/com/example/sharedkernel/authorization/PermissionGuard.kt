@@ -1,5 +1,6 @@
 package com.example.sharedkernel.authorization
 
+import com.example.sharedkernel.errorhandling.ProblemJsonException
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -26,12 +27,18 @@ private val PermissionValidatorPlugin = createRouteScopedPlugin(
 
         // Deny access if permissions claim is missing or doesn't contain the required permission
         if (permissions == null || requiredPermission.value !in permissions) {
-            throw com.example.sharedkernel.errorhandling.ProblemJsonException(
+            val exception = ProblemJsonException(
                 type = "forbidden",
                 title = "Access Forbidden",
                 detail = "Missing required permission: ${requiredPermission.value}",
                 statusCode = HttpStatusCode.Forbidden.value
             )
+
+            call.response.headers.append(HttpHeaders.ContentType, "application/problem+json")
+            call.response.status(HttpStatusCode.fromValue(exception.statusCode))
+            call.respond(exception)
+
+            return@on
         }
     }
 }

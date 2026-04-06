@@ -13,6 +13,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.websocket.WebSocketDeflateExtension.Companion.install
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -22,8 +23,14 @@ suspend fun Application.module() {
     val modules = listOf(IamModule(), FinanceModule())
 
     install (ContentNegotiation) {
-        json()
-        json(contentType = ContentType("application", "problem+json"))
+        listOf("json", "problem+json").forEach { e ->
+            json(
+                contentType = ContentType("application", e),
+                json = Json {
+                    ignoreUnknownKeys = true
+                },
+            )
+        }
     }
 
     configureDependencyInjection(modules)

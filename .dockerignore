@@ -1,0 +1,11 @@
+**/.gradle/
+**/build/
+.kotlin/
+.idea/
+.context/
+
+README.md
+api-documentation.md
+.env
+.gitignore
+postman-collection.json

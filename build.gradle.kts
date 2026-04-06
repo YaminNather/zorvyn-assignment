@@ -1,3 +1,5 @@
+import io.ktor.plugin.features.DockerPortMapping
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
@@ -8,11 +10,13 @@ group = "com.example"
 version = "0.0.1"
 
 application {
-    mainClass = "io.ktor.server.netty.EngineMain"
+    mainClass = "com.example.ApplicationKt"
 }
 
+val javaVersion = JavaVersion.VERSION_21
+
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(javaVersion.majorVersion.toInt())
 }
 
 dependencies {
@@ -43,4 +47,11 @@ dependencies {
     implementation(project(":sharedkernel"))
     implementation(project(":finance"))
     implementation(project(":iam"))
+}
+
+ktor {
+    docker {
+        jreVersion.set(javaVersion)
+        localImageName.set("zorvyn-assignment")
+    }
 }

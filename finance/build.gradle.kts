@@ -30,7 +30,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(JavaVersion.VERSION_21.majorVersion.toInt())
 }
 
 tasks.test {

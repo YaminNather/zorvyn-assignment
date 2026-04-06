@@ -11,11 +11,11 @@ import com.example.iam.infrastructure.queries.user.ExposedListUsersQuery
 import com.example.iam.application.exceptions.UserAlreadyExistsException
 import com.example.iam.application.commands.setupadmin.SetupAdminCommand
 import com.example.iam.application.commands.setupadmin.exceptions.AdminAlreadyExistsException
-import com.example.iam.application.exceptions.InvalidRoleException
 import com.example.iam.application.exceptions.LastAdminCannotChangeRoleException
 import com.example.iam.application.exceptions.UserNotFoundException
 import com.example.iam.domain.auth.JwtProvider
 import com.example.iam.domain.auth.PasswordHasher
+import com.example.iam.domain.role.exceptions.InvalidRoleNameException
 import com.example.iam.domain.user.UserRepository
 import com.example.iam.domain.user.exceptions.AuthenticationException
 import com.example.iam.domain.user.exceptions.InvalidNameException
@@ -103,14 +103,6 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.Forbidden.value
             )
         }
-        register<InvalidRoleException> { e ->
-            ProblemJsonException(
-                type = "invalid-role",
-                title = "Invalid Role",
-                detail = e.message ?: "The specified role does not exist.",
-                statusCode = HttpStatusCode.BadRequest.value
-            )
-        }
         register<InvalidNameException> { e ->
             ProblemJsonException(
                 type = "invalid-name",
@@ -127,7 +119,15 @@ class IamModule : AppModule() {
                 statusCode = HttpStatusCode.Conflict.value
             )
         }
-        Unit
+
+        register<InvalidRoleNameException> { e ->
+            ProblemJsonException(
+                type = "invalid-role",
+                title = "Invalid Role",
+                detail = e.message ?: "Invalid role",
+                statusCode = HttpStatusCode.BadRequest.value,
+            )
+        }
     }
 
     override fun routes(routing: Routing): Unit = with(routing) {

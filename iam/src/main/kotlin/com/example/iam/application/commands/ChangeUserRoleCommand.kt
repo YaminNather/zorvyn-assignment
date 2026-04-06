@@ -1,10 +1,8 @@
 package com.example.iam.application.commands
 
-import com.example.iam.application.exceptions.InvalidRoleException
 import com.example.iam.application.exceptions.LastAdminCannotChangeRoleException
 import com.example.iam.application.exceptions.UserNotFoundException
 import com.example.iam.domain.role.Role
-import com.example.iam.domain.role.exceptions.InvalidRoleNameException
 import com.example.iam.domain.user.UserRepository
 import java.util.UUID
 
@@ -23,11 +21,7 @@ internal class ChangeUserRoleCommand(
      */
     suspend fun execute(userId: UUID, newRoleName: String) {
         val user = userRepository.findById(userId) ?: throw UserNotFoundException(userId)
-        val newRole = try {
-            Role.fromName(newRoleName)
-        } catch (e: InvalidRoleNameException) {
-            throw InvalidRoleException(newRoleName)
-        }
+        val newRole = Role.fromName(newRoleName)
 
         // Protect the last admin from losing their permissions.
         if (user.getRole() == Role.Admin && newRole != Role.Admin) {

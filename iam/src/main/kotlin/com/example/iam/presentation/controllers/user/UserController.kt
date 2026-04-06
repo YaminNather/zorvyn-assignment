@@ -19,6 +19,8 @@ import io.ktor.http.*
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
+import com.example.sharedkernel.errorhandling.RequestValidationException
+import com.example.iam.domain.user.exceptions.AuthenticationException
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
 import java.util.UUID
@@ -71,7 +73,7 @@ internal class UserController(
 
      */
     private suspend fun me(context: RoutingContext) = with(context) {
-        val principal = call.principal<JWTPrincipal>() ?: return@me call.respond(HttpStatusCode.Unauthorized)
+        val principal = call.principal<JWTPrincipal>() ?: throw AuthenticationException()
         val userId = UUID.fromString(principal.payload.subject)
         
         val details = getCurrentUserQuery.execute(userId)
@@ -82,7 +84,7 @@ internal class UserController(
      * Handles the request to change a user's name.
      */
     private suspend fun changeUserName(context: RoutingContext) = with(context) {
-        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
+        val idParam = call.parameters["id"] ?: throw RequestValidationException("Missing user ID")
         val userId = UUID.fromString(idParam)
         val request = call.receive<ChangeUserNameRequestBody>()
         
@@ -94,7 +96,7 @@ internal class UserController(
      * Handles the request to change a user's assigned role.
      */
     private suspend fun changeUserRole(context: RoutingContext) = with(context) {
-        val idParam = call.parameters["id"] ?: return@with call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing user ID"))
+        val idParam = call.parameters["id"] ?: throw RequestValidationException("Missing user ID")
         val userId = UUID.fromString(idParam)
         val request = call.receive<ChangeUserRoleRequestBody>()
         

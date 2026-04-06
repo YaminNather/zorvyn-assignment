@@ -26,9 +26,11 @@ private val PermissionValidatorPlugin = createRouteScopedPlugin(
 
         // Deny access if permissions claim is missing or doesn't contain the required permission
         if (permissions == null || requiredPermission.value !in permissions) {
-            call.respond(
-                HttpStatusCode.Forbidden,
-                mapOf("error" to "Forbidden", "message" to "Missing required permission: ${requiredPermission.value}")
+            throw com.example.sharedkernel.errorhandling.ProblemJsonException(
+                type = "forbidden",
+                title = "Access Forbidden",
+                detail = "Missing required permission: ${requiredPermission.value}",
+                statusCode = HttpStatusCode.Forbidden.value
             )
         }
     }

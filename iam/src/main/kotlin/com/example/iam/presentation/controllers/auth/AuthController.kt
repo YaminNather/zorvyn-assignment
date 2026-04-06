@@ -1,6 +1,8 @@
 package com.example.iam.presentation.controllers.auth
 
 import com.example.iam.application.commands.LoginCommand
+import com.example.iam.domain.validations.validateEmail
+import com.example.iam.domain.validations.validatePassword
 import com.example.iam.presentation.controllers.auth.models.LoginRequestBody
 import com.example.iam.presentation.controllers.auth.models.LoginResponseBody
 import io.ktor.server.request.*
@@ -37,8 +39,11 @@ internal class AuthController(
         route("/auth") {
             install(RequestValidation) {
                 validate<LoginRequestBody> { body ->
-                    if (body.email.isBlank()) ValidationResult.Invalid("Email cannot be blank")
-                    else if (body.password.isBlank()) ValidationResult.Invalid("Password cannot be blank")
+                    val emailError = validateEmail(body.email)
+                    val passwordError = validatePassword(body.password)
+
+                    if (emailError != null) ValidationResult.Invalid("Invalid email, $emailError")
+                    else if (passwordError != null) ValidationResult.Invalid("Invalid password, $passwordError")
                     else ValidationResult.Valid
                 }
             }

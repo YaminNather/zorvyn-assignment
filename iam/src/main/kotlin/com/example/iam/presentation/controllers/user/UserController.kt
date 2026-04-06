@@ -21,6 +21,8 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import com.example.sharedkernel.errorhandling.RequestValidationException
 import com.example.iam.domain.user.exceptions.AuthenticationException
+import com.example.iam.domain.validations.validateEmail
+import com.example.iam.domain.validations.validatePassword
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
 import java.util.UUID
@@ -122,9 +124,12 @@ internal class UserController(
                 route("/user") {
                     install(RequestValidation) {
                         validate<CreateUserRequestBody> { body ->
+                            val emailError = validateEmail(body.email)
+                            val passwordError = validatePassword(body.password)
+
                             if (body.name.isBlank()) ValidationResult.Invalid("Name cannot be blank")
-                            else if (body.email.isBlank() || !body.email.contains("@")) ValidationResult.Invalid("Valid email is required")
-                            else if (body.password.length < 6) ValidationResult.Invalid("Password must be at least 6 characters long")
+                            else if (emailError != null) ValidationResult.Invalid("Invalid email, $emailError")
+                            else if (passwordError != null) ValidationResult.Invalid("Invalid password, $passwordError")
                             else if (body.roleName.isBlank()) ValidationResult.Invalid("Role name cannot be blank")
                             else ValidationResult.Valid
                         }

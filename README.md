@@ -21,6 +21,18 @@ Each module follows **Clean Architecture** principles to separate business logic
 
 ---
 
+## Technologies Used
+
+- **Language**: [Kotlin](https://kotlinlang.org/)
+- **Backend Framework**: [Ktor](https://ktor.io/)
+- **Dependency Injection**: [Koin](https://insert-koin.io/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/)
+- **ORM**: [Exposed (R2DBC)](https://jetbrains.github.io/Exposed/)
+- **Test Runner**: [JUnit](https://junit.org/junit5/)
+- **Containerization**: [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
+
+---
+
 ## Identity & Access Management (IAM)
 
 The system enforces strict **Role-Based Access Control (RBAC)**. Permissions are assigned to roles, and roles are assigned to users. For performance and statelessness, user permissions are embedded directly into the **JWT Access Token**.
@@ -69,6 +81,38 @@ The `summary` dashboard endpoint goes beyond basic CRUD by providing real-time c
 
 ## Testing
 Core business logic is validated via **Unit Tests** for domain entities (e.g., `User`, `Record`, `Role`). These tests ensure that domain invariant rules—such as valid name formats or correct balance calculations—are reliably enforced.
+
+---
+
+## Getting Started
+
+> [!WARNING]
+> **Security Notice**: Environment variables are intentionally included in this repository (e.g., in `.env`, `set-env.sh`, and `docker-compose.yml`) for the purpose of the assignment and to ensure ease of evaluation. I am fully aware that including secrets directly in a repository is a critical security risk and should never be done in a production environment.
+
+### Using Docker Compose (Recommended)
+This approach automatically sets up both the Ktor application and the PostgreSQL database.
+1. Ensure you have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed.
+2. Run the following command in the root directory:
+   ```bash
+   docker-compose up --build
+   ```
+3. The server will be available at `http://localhost:8080`.
+
+### Running Locally (Without Docker)
+This approach assumes you have [PostgreSQL](https://www.postgresql.org/) and [Java 21](https://adoptium.net/) installed.
+1. **Database Setup**: Create a local PostgreSQL database named `zorvyn_assignment`. The application expects connections on `localhost:5432` with credentials matching those in `set-env.sh`.
+2. **Environment Variables**: Export the required variables. On Unix-like systems, you can use:
+   ```bash
+   source set-env.sh
+   ```
+3. **Build**: Create the fat jar using Gradle:
+   ```bash
+   ./gradlew :buildFatJar
+   ```
+4. **Run**: Start the application:
+   ```bash
+   java -jar build/libs/*-all.jar
+   ```
 
 ---
 

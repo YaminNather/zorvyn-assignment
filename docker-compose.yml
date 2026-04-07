@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ktor-db
+    environment:
+      POSTGRES_DB: zorvyn_assignment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zorvyn_assignment"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: zorvyn-assignment
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+
+      DB_URL: r2dbc:postgresql://db:5432/zorvyn_assignment
+      DB_USER: postgres
+      DB_PASSWORD: password
+
+      JWT_DOMAIN: https://jwt-provider-domain/
+      JWT_AUDIENCE: jwt-audience
+      JWT_REALM: ktor sample app
+      JWT_SECRET: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend-network
+
+volumes:
+  postgres_data:
+
+networks:
+  backend-network:
+    driver: bridge

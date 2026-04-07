@@ -31,7 +31,7 @@ The application is structured as a **Modular Monolith**, ensuring a clean separa
 
 - **`iam`**: Identity & Access Management. Handles user lifecycle, roles, permissions, and session management.
 - **`finance`**: Finance Management. Handles financial records lifecycle (CRUD) and analytic summaries.
-- **`sharedkernel`**: Shared core functionality including cross-cutting concerns like custom exceptions, permission guards, and utility primitives used by multiple modules.
+- **`sharedkernel`**: Shared core functionality including cross-cutting concerns like ProblemJSON exceptions, permission guards, and utility primitives used by multiple modules.
 
 ### Clean Architecture
 Each module follows **Clean Architecture** principles to separate business logic from external frameworks:

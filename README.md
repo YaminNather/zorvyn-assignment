@@ -2,6 +2,28 @@
 
 This repository contains the backend implementation for a Finance Dashboard system, focusing on role-based access control, financial data processing, and aggregated insights.
 
+## Table of Contents
+
+- [Project Architecture](#project-architecture)
+  - [Modular Monolith](#modular-monolith)
+  - [Clean Architecture](#clean-architecture)
+- [Technologies Used](#technologies-used)
+- [Identity & Access Management (IAM)](#identity--access-management-iam)
+  - [Roles and Permissions](#roles-and-permissions)
+  - [Authentication](#authentication)
+  - [Initial Admin Setup](#initial-admin-setup)
+- [Finance Module](#finance-module)
+  - [Flexible Querying and Filtering](#flexible-querying-and-filtering)
+  - [Pagination and Soft Deletion](#pagination-and-soft-deletion)
+  - [Dynamic Dashboard Summaries](#dynamic-dashboard-summaries)
+- [Shared Kernel & Cross-Cutting Concerns](#shared-kernel--cross-cutting-concerns)
+- [Testing](#testing)
+- [Getting Started](#getting-started)
+  - [Using Docker Compose (Recommended)](#using-docker-compose-recommended)
+  - [Running Locally (Without Docker)](#running-locally-without-docker)
+- [Deployment](#deployment)
+- [API Documentation](#api-documentation)
+
 ## Project Architecture
 
 ### Modular Monolith
@@ -49,6 +71,17 @@ The system enforces strict **Role-Based Access Control (RBAC)**. Permissions are
 - **Stateless JWT**: Access tokens are issued upon login and validated using a custom `withPermission` guard.
 - **Security**: Passwords are securely hashed using **BCrypt** before storage.
 
+### Initial Admin Setup
+Since the system follows strict RBAC where only an admin can create or manage users, an initial setup endpoint is provided to bootstrap the system.
+
+**Endpoint**: `POST /iam/setup/admin`
+
+Calling this endpoint will create the first administrator with the following default credentials:
+- **Email**: `admin@example.com`
+- **Password**: `admin`
+
+*Note: This endpoint is only intended for initial setup and should be secured or removed in a production environment.*
+
 ---
 
 ## Finance Module
@@ -83,6 +116,19 @@ The `summary` dashboard endpoint goes beyond basic CRUD by providing real-time c
 ## Testing
 Core business logic is validated via **Unit Tests** for domain entities (e.g., `User`, `Record`, `Role`). These tests ensure that domain invariant rules—such as valid name formats or correct balance calculations—are reliably enforced.
 
+### Running Tests
+To execute all tests across the modular monolith, run:
+```bash
+./gradlew test
+```
+This will run unit and integration tests across all modules (`iam`, `finance`, `sharedkernel`) and the main application.
+
+### Viewing Test Results
+After running the tests, Gradle generates a comprehensive HTML report. You can view the results by opening the following file in your browser:
+```text
+build/reports/tests/test/index.html
+```
+
 ---
 
 ## Getting Started
@@ -114,6 +160,19 @@ This approach assumes you have [PostgreSQL](https://www.postgresql.org/) and [Ja
    ```bash
    java -jar build/libs/*-all.jar
    ```
+
+---
+
+## Deployment
+
+The application is deployed on **AWS** for public access.
+
+- **Environment**: AWS EC2 Instance (Linux)
+- **Container Orchestration**: Docker Compose
+- **Image Registry**: AWS ECR (Elastic Container Registry)
+- **Public URL**: [http://3.7.93.223:8080](http://3.7.93.223:8080)
+
+The deployment uses a similar Docker Compose strategy as the local setup, but with the backend image pulled from a private ECR repository.
 
 ---
 

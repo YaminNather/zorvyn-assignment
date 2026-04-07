@@ -24,6 +24,7 @@ Each module follows **Clean Architecture** principles to separate business logic
 ## Technologies Used
 
 - **Language**: [Kotlin](https://kotlinlang.org/)
+- Java Runtime Environment: JRE 21
 - **Backend Framework**: [Ktor](https://ktor.io/)
 - **Dependency Injection**: [Koin](https://insert-koin.io/)
 - **Database**: [PostgreSQL](https://www.postgresql.org/)

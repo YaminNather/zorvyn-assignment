@@ -118,3 +118,5 @@ This approach assumes you have [PostgreSQL](https://www.postgresql.org/) and [Ja
 
 ## API Documentation
 Detailed documentation for all available endpoints, including request/response examples and required headers, can be found in [api-documentation.md](./api-documentation.md).
+
+For easier testing, a **Postman Collection** is also included in the repository: [postman_collection.json](./postman_collection.json).

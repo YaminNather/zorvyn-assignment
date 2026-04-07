@@ -1,9 +1,11 @@
 package com.example.finance.domain.record
 
 import com.example.finance.domain.record.exceptions.InvalidCategoryException
-import java.time.Instant
 import java.util.UUID
 import kotlin.test.*
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 /**
  * Unit tests for the Record domain entity.
@@ -14,7 +16,7 @@ internal class RecordTest {
 
     private val testAmount = 10000L // Rs 100.00
     private val testCategory = "Food"
-    private val testDate = Instant.now()
+    private val testDate = Clock.System.now()
 
     @Test
     fun `should create record with generated id and handle positive and negative amounts`() {
@@ -61,7 +63,7 @@ internal class RecordTest {
     @Test
     fun `should allow changing date`() {
         val record = Record.create(testAmount, testCategory, testDate)
-        val newDate = Instant.now().plusSeconds(3600)
+        val newDate = Clock.System.now().plus(3600.seconds)
         record.changeDate(newDate)
         assertEquals(newDate, record.date)
     }
